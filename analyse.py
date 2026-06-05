@@ -129,35 +129,40 @@ def suggest_draw(num_counter: Counter, special_counter: Counter, game_format: st
     if not num_counter:
         return
 
-    print(f"\n  Tirage suggéré (pondéré par fréquence historique):")
+    print(f"\n  Tirages suggérés (pondérés par fréquence historique):")
 
-    if game_format == "5boules+chance":
-        boules = weighted_sample(num_counter, 5)
-        chance = weighted_sample(special_counter, 1) if special_counter else [random.randint(1, 10)]
-        print(f"  Boules  : {' - '.join(f'{n:02d}' for n in boules)}")
-        print(f"  Chance  : {chance[0]:02d}")
+    seed = sum(n * c for n, c in num_counter.items())
 
-    else:  # 5boules+2etoiles ou 5boules
+    for label, s in (("Fixe   ", seed), ("Aléatoire", None)):
+        random.seed(s)
         boules = weighted_sample(num_counter, 5)
-        print(f"  Boules  : {' - '.join(f'{n:02d}' for n in boules)}")
-        if special_counter:
-            etoiles = weighted_sample(special_counter, 2)
-            print(f"  Étoiles : {' - '.join(f'{n:02d}' for n in etoiles)}")
+        if game_format == "5boules+chance":
+            chance = weighted_sample(special_counter, 1) if special_counter else [random.randint(1, 10)]
+            print(f"  {label} — Boules : {' - '.join(f'{n:02d}' for n in boules)}  Chance : {chance[0]:02d}")
+        else:
+            line = f"  {label} — Boules : {' - '.join(f'{n:02d}' for n in boules)}"
+            if special_counter:
+                etoiles = weighted_sample(special_counter, 2)
+                line += f"  Étoiles : {' - '.join(f'{n:02d}' for n in etoiles)}"
+            print(line)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyse des tirages FDJ")
     parser.add_argument("--top", type=int, default=TOP_N, help=f"Nombre de résultats à afficher (défaut: {TOP_N})")
+    parser.add_argument("--refresh", action="store_true", help="Relance download.py avant l'analyse")
+    args = parser.parse_args()
     args = parser.parse_args()
 
-    print("Lancement du téléchargement...")
-    result = subprocess.run(
-        [sys.executable, str(Path(__file__).parent / "download.py")],
-        capture_output=False,
-    )
-    if result.returncode != 0:
-        print("[!] download.py a échoué, abandon.")
-        sys.exit(1)
+    if args.refresh or not DOWNLOADS_DIR.exists():
+        print("Lancement du téléchargement...")
+        result = subprocess.run(
+            [sys.executable, str(Path(__file__).parent / "download.py")],
+            capture_output=False,
+        )
+        if result.returncode != 0:
+            print("[!] download.py a échoué, abandon.")
+            sys.exit(1)
 
     for jeu in ("loto", "euromillions"):
         print(f"\n{'='*50}")
