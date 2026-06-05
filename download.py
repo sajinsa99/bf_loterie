@@ -1,4 +1,5 @@
 import json
+import shutil
 import zipfile
 import urllib.request
 from pathlib import Path
@@ -44,13 +45,20 @@ def main() -> None:
 
         for entree in entrees:
             zip_path = jeu_dir / entree["fichier"]
-            downloaded = download(entree["url"], zip_path)
+            extract_dir = jeu_dir / zip_path.stem
 
-            if downloaded or zip_path.exists():
-                extract_dir = jeu_dir / zip_path.stem
-                extract_dir.mkdir(exist_ok=True)
-                print(f"  Extraction dans {extract_dir.relative_to(DOWNLOAD_DIR.parent)} ...")
-                safe_extract(zip_path, extract_dir)
+            if extract_dir.exists():
+                print(f"[rm]   {extract_dir.relative_to(DOWNLOAD_DIR.parent)}")
+                shutil.rmtree(extract_dir)
+
+            download(entree["url"], zip_path)
+
+            extract_dir.mkdir(exist_ok=True)
+            print(f"  Extraction dans {extract_dir.relative_to(DOWNLOAD_DIR.parent)} ...")
+            safe_extract(zip_path, extract_dir)
+
+            zip_path.unlink()
+            print(f"  [rm]   {zip_path.name}")
 
 
 if __name__ == "__main__":
