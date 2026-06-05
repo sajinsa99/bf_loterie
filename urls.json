@@ -1,0 +1,56 @@
+{
+  "loto": [
+    {
+      "periode": "mai 1976 - octobre 2008",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afl6",
+      "fichier": "1976-2008.zip"
+    },
+    {
+      "periode": "octobre 2008 - mars 2007",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afm6",
+      "fichier": "2008-2007.zip"
+    },
+    {
+      "periode": "mars 2017 - fevrier 2019",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afn6",
+      "fichier": "2017-2019.zip"
+    },
+    {
+      "periode": "fevrier 2019 - novembre 2026",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afo6",
+      "fichier": "2019-2026.zip"
+    }
+  ],
+  "euromillions": [
+    {
+      "periode": "fevrier 2004 - mai 2011",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afa8",
+      "fichier": "2004-2011.zip"
+    },
+    {
+      "periode": "mai 2011 - février 2014",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afa9",
+      "fichier": "2011-2014.zip"
+    },
+    {
+      "periode": "février 2014 - septembre 2016",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afb6",
+      "fichier": "2014-2016.zip"
+    },
+    {
+      "periode": "septembre 2016 - fevrier 2019",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afc6",
+      "fichier": "2016-2019.zip"
+    },
+    {
+      "periode": "mars 2019 - fevrier 2020",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afd6",
+      "fichier": "2019-2020.zip"
+    },
+    {
+      "periode": "fevrier 2020 - juin 2026",
+      "url": "https://www.sto.api.fdj.fr/anonymous/service-draw-info/v3/documentations/1a2b3c4d-9876-4562-b3fc-2c963f66afe6",
+      "fichier": "2020-2026.zip"
+    }
+  ]
+}
