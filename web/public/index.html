@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BF Loterie</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>BF Loterie</h1>
+      <div class="controls">
+        <label>
+          Top
+          <input id="top-input" type="number" min="1" max="50" value="10" />
+        </label>
+        <button id="btn-refresh">Rafraîchir</button>
+        <button id="btn-draw">Nouveau tirage</button>
+      </div>
+    </header>
+
+    <div id="status" class="status hidden"></div>
+
+    <main id="content">
+      <section class="jeu" id="section-loto">
+        <h2>Loto</h2>
+        <div class="draws" id="draws-loto"></div>
+        <div class="tables" id="tables-loto"></div>
+      </section>
+
+      <section class="jeu" id="section-euromillions">
+        <h2>Euromillions</h2>
+        <div class="draws" id="draws-euromillions"></div>
+        <div class="tables" id="tables-euromillions"></div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

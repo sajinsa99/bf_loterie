@@ -1,0 +1,12 @@
+{
+  "name": "bf_loterie_web",
+  "version": "1.0.0",
+  "description": "Web UI for bf_loterie analyse.py",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import csv
+import json
 import random
 import argparse
 from collections import Counter
@@ -125,51 +126,91 @@ def analyse_jeu(jeu: str, top_n: int) -> tuple[Counter, Counter, str]:
     return num_counter, special_counter, game_format
 
 
+def suggest_draw_data(num_counter: Counter, special_counter: Counter, game_format: str) -> dict:
+    """Return structured draw suggestions (used by --json and web server)."""
+    if not num_counter:
+        return {}
+
+    seed = sum(n * c for n, c in num_counter.items())
+    results = {}
+
+    for label, s in (("fixed", seed), ("random", None)):
+        random.seed(s)
+        boules = weighted_sample(num_counter, 5)
+        if game_format == "5boules+chance":
+            chance = weighted_sample(special_counter, 1) if special_counter else [random.randint(1, 10)]
+            results[label] = {"boules": boules, "chance": chance[0]}
+        else:
+            entry: dict = {"boules": boules}
+            if special_counter:
+                entry["etoiles"] = weighted_sample(special_counter, 2)
+            results[label] = entry
+
+    return results
+
+
 def suggest_draw(num_counter: Counter, special_counter: Counter, game_format: str) -> None:
     if not num_counter:
         return
 
     print(f"\n  Tirages suggérés (pondérés par fréquence historique):")
+    draws = suggest_draw_data(num_counter, special_counter, game_format)
 
-    seed = sum(n * c for n, c in num_counter.items())
-
-    for label, s in (("Fixe   ", seed), ("Aléatoire", None)):
-        random.seed(s)
-        boules = weighted_sample(num_counter, 5)
-        if game_format == "5boules+chance":
-            chance = weighted_sample(special_counter, 1) if special_counter else [random.randint(1, 10)]
-            print(f"  {label} — Boules : {' - '.join(f'{n:02d}' for n in boules)}  Chance : {chance[0]:02d}")
-        else:
-            line = f"  {label} — Boules : {' - '.join(f'{n:02d}' for n in boules)}"
-            if special_counter:
-                etoiles = weighted_sample(special_counter, 2)
-                line += f"  Étoiles : {' - '.join(f'{n:02d}' for n in etoiles)}"
-            print(line)
+    labels = {"fixed": "Fixe     ", "random": "Aléatoire"}
+    for key, label in labels.items():
+        d = draws.get(key, {})
+        boules = d.get("boules", [])
+        line = f"  {label} — Boules : {' - '.join(f'{n:02d}' for n in boules)}"
+        if "chance" in d:
+            line += f"  Chance : {d['chance']:02d}"
+        elif "etoiles" in d:
+            line += f"  Étoiles : {' - '.join(f'{n:02d}' for n in d['etoiles'])}"
+        print(line)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyse des tirages FDJ")
     parser.add_argument("--top", type=int, default=TOP_N, help=f"Nombre de résultats à afficher (défaut: {TOP_N})")
     parser.add_argument("--refresh", action="store_true", help="Relance download.py avant l'analyse")
-    args = parser.parse_args()
+    parser.add_argument("--json", action="store_true", help="Sortie JSON structurée (pour le serveur web)")
+    parser.add_argument("--draw-only", action="store_true", help="Ne recalcule que les tirages (implique --json)")
     args = parser.parse_args()
 
     if args.refresh or not DOWNLOADS_DIR.exists():
-        print("Lancement du téléchargement...")
+        print("Lancement du téléchargement...", file=sys.stderr)
         result = subprocess.run(
             [sys.executable, str(Path(__file__).parent / "download.py")],
             capture_output=False,
         )
         if result.returncode != 0:
-            print("[!] download.py a échoué, abandon.")
+            print("[!] download.py a échoué, abandon.", file=sys.stderr)
             sys.exit(1)
 
+    output = {}
     for jeu in ("loto", "euromillions"):
-        print(f"\n{'='*50}")
-        print(f"  {jeu.upper()}")
-        print(f"{'='*50}")
-        num_counter, special_counter, game_format = analyse_jeu(jeu, args.top)
-        suggest_draw(num_counter, special_counter, game_format)
+        if args.json or args.draw_only:
+            import io, contextlib
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                num_counter, special_counter, game_format = analyse_jeu(jeu, args.top)
+            draws = suggest_draw_data(num_counter, special_counter, game_format)
+            top_nums = [(n, c) for n, c in num_counter.most_common(args.top)]
+            top_specials = [(n, c) for n, c in special_counter.most_common(args.top)]
+            output[jeu] = {
+                "top_nums": top_nums,
+                "top_specials": top_specials,
+                "game_format": game_format,
+                "draws": draws,
+            }
+        else:
+            print(f"\n{'='*50}")
+            print(f"  {jeu.upper()}")
+            print(f"{'='*50}")
+            num_counter, special_counter, game_format = analyse_jeu(jeu, args.top)
+            suggest_draw(num_counter, special_counter, game_format)
+
+    if args.json or args.draw_only:
+        print(json.dumps(output, ensure_ascii=False))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,16 @@
+[Unit]
+Description=BF Loterie web UI
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/bf_loterie/web
+Environment=PORT=6000
+Environment=PYTHON=python3
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
