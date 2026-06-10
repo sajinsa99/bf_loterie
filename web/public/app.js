@@ -1,6 +1,7 @@
 'use strict';
 
 const topInput = document.getElementById('top-input');
+const powerInput = document.getElementById('power-input');
 const btnRefresh = document.getElementById('btn-refresh');
 const btnDraw = document.getElementById('btn-draw');
 const statusEl = document.getElementById('status');
@@ -24,6 +25,11 @@ function topValue() {
   return Number.isInteger(v) && v > 0 ? v : 10;
 }
 
+function powerValue() {
+  const v = parseFloat(powerInput.value);
+  return Number.isFinite(v) && v > 0 ? v : 1.0;
+}
+
 function pad(n) {
   return String(n).padStart(2, '0');
 }
@@ -39,7 +45,7 @@ function renderDraws(container, draws, gameFormat) {
   container.innerHTML = '';
   const entries = [
     { key: 'fixed', label: 'Fixe (déterministe)' },
-    { key: 'random', label: 'Aléatoire' },
+    { key: 'random', label: 'Aléatoire (pondéré)' },
   ];
 
   for (const { key, label } of entries) {
@@ -145,7 +151,7 @@ async function fetchAnalyse() {
   setLoading(true);
   setStatus('Analyse en cours…');
   try {
-    const res = await fetch(`api/analyse?top=${topValue()}`);
+    const res = await fetch(`api/analyse?top=${topValue()}&power=${powerValue()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderAll(data);
@@ -161,7 +167,7 @@ async function fetchDraw() {
   setLoading(true);
   setStatus('Tirage en cours…');
   try {
-    const res = await fetch(`api/draw?top=${topValue()}`);
+    const res = await fetch(`api/draw?top=${topValue()}&power=${powerValue()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     for (const jeu of ['loto', 'euromillions']) {

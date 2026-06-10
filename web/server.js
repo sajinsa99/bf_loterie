@@ -33,14 +33,18 @@ function runAnalyse(args, res) {
 app.get('/api/analyse', (req, res) => {
   const top = parseInt(req.query.top, 10);
   const topArg = Number.isInteger(top) && top > 0 ? String(top) : '10';
-  runAnalyse(['--json', '--top', topArg], res);
+  const power = parseFloat(req.query.power);
+  const powerArg = Number.isFinite(power) && power > 0 ? String(power) : '1.0';
+  runAnalyse(['--json', '--top', topArg, '--power', powerArg], res);
 });
 
 // New draw only (random re-seed, skip heavy CSV parsing)
 app.get('/api/draw', (req, res) => {
   const top = parseInt(req.query.top, 10);
   const topArg = Number.isInteger(top) && top > 0 ? String(top) : '10';
-  runAnalyse(['--json', '--draw-only', '--top', topArg], res);
+  const power = parseFloat(req.query.power);
+  const powerArg = Number.isFinite(power) && power > 0 ? String(power) : '1.0';
+  runAnalyse(['--json', '--draw-only', '--top', topArg, '--power', powerArg], res);
 });
 
 app.listen(PORT, () => {

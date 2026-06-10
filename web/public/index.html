@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BF Loterie</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
@@ -13,7 +13,11 @@
       <div class="controls">
         <label>
           Top
-          <input id="top-input" type="number" min="1" max="50" value="10" />
+          <input id="top-input" type="number" min="1" max="50" value="10">
+        </label>
+        <label>
+          Pondération
+          <input id="power-input" type="number" min="0.1" max="5" step="0.1" value="1.0">
         </label>
         <button id="btn-refresh">Rafraîchir</button>
         <button id="btn-draw">Nouveau tirage</button>

@@ -60,10 +60,10 @@ def csv_game_format(path: Path) -> str:
     return "5boules"
 
 
-def weighted_sample(counter: Counter, k: int) -> list[int]:
-    """Tirage pondéré sans remise basé sur les fréquences."""
+def weighted_sample(counter: Counter, k: int, power: float = 1.0) -> list[int]:
+    """Tirage pondéré sans remise basé sur les fréquences (power > 1 renforce les favoris)."""
     population = list(counter.keys())
-    weights = [counter[n] for n in population]
+    weights = [counter[n] ** power for n in population]
     selected = []
     for _ in range(k):
         total = sum(weights)
@@ -126,7 +126,7 @@ def analyse_jeu(jeu: str, top_n: int) -> tuple[Counter, Counter, str]:
     return num_counter, special_counter, game_format
 
 
-def suggest_draw_data(num_counter: Counter, special_counter: Counter, game_format: str) -> dict:
+def suggest_draw_data(num_counter: Counter, special_counter: Counter, game_format: str, power: float = 1.0) -> dict:
     """Return structured draw suggestions (used by --json and web server)."""
     if not num_counter:
         return {}
@@ -136,25 +136,25 @@ def suggest_draw_data(num_counter: Counter, special_counter: Counter, game_forma
 
     for label, s in (("fixed", seed), ("random", None)):
         random.seed(s)
-        boules = weighted_sample(num_counter, 5)
+        boules = weighted_sample(num_counter, 5, power)
         if game_format == "5boules+chance":
-            chance = weighted_sample(special_counter, 1) if special_counter else [random.randint(1, 10)]
+            chance = weighted_sample(special_counter, 1, power) if special_counter else [random.randint(1, 10)]
             results[label] = {"boules": boules, "chance": chance[0]}
         else:
             entry: dict = {"boules": boules}
             if special_counter:
-                entry["etoiles"] = weighted_sample(special_counter, 2)
+                entry["etoiles"] = weighted_sample(special_counter, 2, power)
             results[label] = entry
 
     return results
 
 
-def suggest_draw(num_counter: Counter, special_counter: Counter, game_format: str) -> None:
+def suggest_draw(num_counter: Counter, special_counter: Counter, game_format: str, power: float = 1.0) -> None:
     if not num_counter:
         return
 
     print(f"\n  Tirages suggérés (pondérés par fréquence historique):")
-    draws = suggest_draw_data(num_counter, special_counter, game_format)
+    draws = suggest_draw_data(num_counter, special_counter, game_format, power)
 
     labels = {"fixed": "Fixe     ", "random": "Aléatoire"}
     for key, label in labels.items():
@@ -171,6 +171,7 @@ def suggest_draw(num_counter: Counter, special_counter: Counter, game_format: st
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyse des tirages FDJ")
     parser.add_argument("--top", type=int, default=TOP_N, help=f"Nombre de résultats à afficher (défaut: {TOP_N})")
+    parser.add_argument("--power", type=float, default=1.0, help="Exposant de pondération (1.0=linéaire, 2.0=fort, défaut: 1.0)")
     parser.add_argument("--refresh", action="store_true", help="Relance download.py avant l'analyse")
     parser.add_argument("--json", action="store_true", help="Sortie JSON structurée (pour le serveur web)")
     parser.add_argument("--draw-only", action="store_true", help="Ne recalcule que les tirages (implique --json)")
@@ -193,7 +194,7 @@ def main() -> None:
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf):
                 num_counter, special_counter, game_format = analyse_jeu(jeu, args.top)
-            draws = suggest_draw_data(num_counter, special_counter, game_format)
+            draws = suggest_draw_data(num_counter, special_counter, game_format, args.power)
             top_nums = [(n, c) for n, c in num_counter.most_common(args.top)]
             top_specials = [(n, c) for n, c in special_counter.most_common(args.top)]
             output[jeu] = {
@@ -207,7 +208,7 @@ def main() -> None:
             print(f"  {jeu.upper()}")
             print(f"{'='*50}")
             num_counter, special_counter, game_format = analyse_jeu(jeu, args.top)
-            suggest_draw(num_counter, special_counter, game_format)
+            suggest_draw(num_counter, special_counter, game_format, args.power)
 
     if args.json or args.draw_only:
         print(json.dumps(output, ensure_ascii=False))
