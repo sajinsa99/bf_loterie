@@ -190,3 +190,53 @@ tbody td {
 tbody td:first-child { color: #555; }
 tbody td:nth-child(2) { font-weight: 600; }
 tbody td:last-child { text-align: right; color: #aaa; }
+
+/* Help footer */
+.help {
+  margin-top: 3rem;
+  border-top: 1px solid #333;
+  padding-top: 1.5rem;
+}
+
+.help h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.help-table {
+  font-size: 0.82rem;
+}
+
+.help-table thead th {
+  color: #555;
+  font-size: 0.75rem;
+}
+
+.help-table tbody td {
+  vertical-align: top;
+  color: #999;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.help-table tbody td:first-child {
+  white-space: nowrap;
+  color: #ccc;
+  padding-right: 1.5rem;
+  font-weight: normal;
+}
+
+.help-table tbody td:last-child {
+  text-align: left;
+  color: #999;
+}
+
+.help-table code {
+  background: #2a2a2a;
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+  font-size: 0.85em;
+  color: #f5c518;
+}

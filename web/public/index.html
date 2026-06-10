@@ -19,8 +19,8 @@
           Pondération
           <input id="power-input" type="number" min="0.1" max="5" step="0.1" value="1.0">
         </label>
-        <button id="btn-refresh">Rafraîchir</button>
-        <button id="btn-draw">Nouveau tirage</button>
+        <button type="button" id="btn-refresh">Rafraîchir</button>
+        <button type="button" id="btn-draw">Nouveau tirage</button>
       </div>
     </header>
 
@@ -39,6 +39,41 @@
         <div class="tables" id="tables-euromillions"></div>
       </section>
     </main>
+
+    <footer class="help">
+      <h2>Aide</h2>
+      <table class="help-table">
+        <thead>
+          <tr><th>Élément</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Top</strong></td>
+            <td>Nombre de numéros les plus fréquents à afficher dans les tableaux de statistiques.</td>
+          </tr>
+          <tr>
+            <td><strong>Pondération</strong></td>
+            <td>Exposant appliqué aux fréquences lors du tirage. <code>1.0</code> = proportionnel aux occurrences (défaut). <code>2.0</code> = les numéros fréquents ont un poids quadratique, favorisant nettement les favoris. <code>0.5</code> = atténue les écarts (tirage plus équilibré).</td>
+          </tr>
+          <tr>
+            <td><strong>Rafraîchir</strong></td>
+            <td>Recharge les statistiques et les tirages en tenant compte des valeurs de Top et Pondération.</td>
+          </tr>
+          <tr>
+            <td><strong>Nouveau tirage</strong></td>
+            <td>Recalcule uniquement les tirages (sans relire les statistiques), avec la Pondération en cours.</td>
+          </tr>
+          <tr>
+            <td><strong>Fixe (déterministe)</strong></td>
+            <td>Tirage reproductible : la graine est calculée à partir des fréquences historiques. Le résultat ne change que si les données CSV évoluent.</td>
+          </tr>
+          <tr>
+            <td><strong>Aléatoire (pondéré)</strong></td>
+            <td>Tirage différent à chaque appui sur "Nouveau tirage", mais les numéros fréquents restent favorisés selon la Pondération choisie.</td>
+          </tr>
+        </tbody>
+      </table>
+    </footer>
   </div>
   <script src="app.js"></script>
 </body>
