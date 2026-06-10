@@ -29,7 +29,7 @@ fi
 
 echo "==> Copying bf_loterie to $LOTERIE_DIR..."
 mkdir -p "$LOTERIE_DIR"
-rsync -a --exclude='.git' --exclude='downloads' --exclude='__pycache__' --exclude='web' \
+rsync -a --exclude='.git' --exclude='__pycache__' --exclude='web' \
   "$SCRIPT_DIR/../" "$LOTERIE_DIR/"
 chown -R www-data:www-data "$LOTERIE_DIR"
 
