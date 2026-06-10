@@ -145,7 +145,7 @@ async function fetchAnalyse() {
   setLoading(true);
   setStatus('Analyse en cours…');
   try {
-    const res = await fetch(`/api/analyse?top=${topValue()}`);
+    const res = await fetch(`api/analyse?top=${topValue()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderAll(data);
@@ -161,7 +161,7 @@ async function fetchDraw() {
   setLoading(true);
   setStatus('Tirage en cours…');
   try {
-    const res = await fetch(`/api/draw?top=${topValue()}`);
+    const res = await fetch(`api/draw?top=${topValue()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     for (const jeu of ['loto', 'euromillions']) {
