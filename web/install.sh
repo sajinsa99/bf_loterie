@@ -55,10 +55,12 @@ echo "==> Configuring nginx..."
 mkdir -p /etc/nginx/snippets
 cp "$INSTALL_DIR/deploy/nginx-bf_loterie_web.conf" "$NGINX_SNIPPET"
 
-# Défaire l'ancienne injection individuelle si elle existe encore
-if [[ -f "$BRUNO_CONF" ]] && grep -q "bf_loterie_web_location" "$BRUNO_CONF"; then
-  sed -i '/include.*bf_loterie_web_location\.conf/d' "$BRUNO_CONF"
-  echo "    Removed stale per-project include from $BRUNO_CONF"
+# Défaire tous les includes individuels de snippets (le glob les couvre tous)
+if [[ -f "$BRUNO_CONF" ]]; then
+  if grep -qP 'include\s+/etc/nginx/snippets/[^*].*_location\.conf' "$BRUNO_CONF"; then
+    sed -i -E '/include[[:space:]]+\/etc\/nginx\/snippets\/[^*].*_location\.conf/d' "$BRUNO_CONF"
+    echo "    Removed per-project snippet includes from $BRUNO_CONF"
+  fi
 fi
 
 # Le vhost bruno doit contenir : include /etc/nginx/snippets/*_location.conf;
