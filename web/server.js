@@ -2,13 +2,17 @@
 
 const { execFile } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 const express = require('express');
 
 const app = express();
 const PORT = process.env.PORT || 6000;
 const PYTHON = process.env.PYTHON || 'python3';
 const ANALYSE_PY = path.join(__dirname, '..', 'analyse.py');
+const HISTORY_FILE = process.env.HISTORY_FILE || path.join(__dirname, 'history.json');
+const MAX_HISTORY = 50;
 
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
 }));
@@ -45,6 +49,44 @@ app.get('/api/draw', (req, res) => {
   const power = parseFloat(req.query.power);
   const powerArg = Number.isFinite(power) && power > 0 ? String(power) : '1.0';
   runAnalyse(['--json', '--draw-only', '--top', topArg, '--power', powerArg], res);
+});
+
+// History
+function readHistory() {
+  try { return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8')); }
+  catch { return []; }
+}
+
+function writeHistory(entries) {
+  fs.writeFileSync(HISTORY_FILE, JSON.stringify(entries, null, 2), 'utf8');
+}
+
+app.get('/api/history', (req, res) => {
+  res.json(readHistory());
+});
+
+app.post('/api/history', (req, res) => {
+  const entry = req.body;
+  if (!entry || typeof entry !== 'object' || !entry.id) {
+    return res.status(400).json({ error: 'Invalid entry' });
+  }
+  const entries = readHistory();
+  entries.unshift(entry);
+  if (entries.length > MAX_HISTORY) entries.length = MAX_HISTORY;
+  writeHistory(entries);
+  res.json({ ok: true });
+});
+
+app.delete('/api/history/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const entries = readHistory().filter(e => e.id !== id);
+  writeHistory(entries);
+  res.json({ ok: true });
+});
+
+app.delete('/api/history', (req, res) => {
+  writeHistory([]);
+  res.json({ ok: true });
 });
 
 app.listen(PORT, () => {

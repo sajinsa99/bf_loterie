@@ -42,7 +42,19 @@ echo "==> Installing npm dependencies..."
 cd "$INSTALL_DIR"
 npm install --production --silent
 
+# history.json : backup si existant, puis créer vide si absent
+HISTORY_FILE="$INSTALL_DIR/history.json"
+if [[ -f "$HISTORY_FILE" ]]; then
+  BACKUP="${HISTORY_FILE}.bak.$(date +%Y%m%d_%H%M%S)"
+  cp -vf "$HISTORY_FILE" "$BACKUP"
+  echo "    Backed up history.json → $(basename "$BACKUP")"
+else
+  echo '[]' > "$HISTORY_FILE"
+  echo "    Created empty history.json"
+fi
+
 chown -R www-data:www-data "$INSTALL_DIR"
+chmod 644 "$HISTORY_FILE"
 
 echo "==> Installing systemd service..."
 cp "$INSTALL_DIR/deploy/bf_loterie_web.service" "/etc/systemd/system/${SERVICE_NAME}.service"

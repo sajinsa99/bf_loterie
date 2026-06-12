@@ -9,8 +9,8 @@ const historyPanel = document.getElementById('history-panel');
 const historyList = document.getElementById('history-list');
 const btnClearHistory = document.getElementById('btn-clear-history');
 
-const HISTORY_KEY = 'bf_loterie_history';
-const MAX_HISTORY = 50;
+// Current draws per game, used by the "Jouer" buttons
+const currentDraws = { loto: null, euromillions: null };
 
 function setStatus(msg, type = 'info') {
   statusEl.textContent = msg;
@@ -42,50 +42,38 @@ function pad(n) {
 
 // --- History ---
 
-function loadHistory() {
-  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
-  catch { return []; }
+async function loadHistory() {
+  try {
+    const res = await fetch('api/history');
+    if (!res.ok) return [];
+    return await res.json();
+  } catch { return []; }
 }
 
-function saveHistory(entries) {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
-}
-
-function formatBalls(d, gameFormat) {
-  const parts = d.boules.map(n => pad(n)).join(' – ');
-  if (gameFormat === '5boules+chance' && d.chance != null) {
-    return `${parts} ✦ ${pad(d.chance)}`;
-  } else if (d.etoiles && d.etoiles.length) {
-    return `${parts} ★ ${d.etoiles.map(n => pad(n)).join(' – ')}`;
-  }
-  return parts;
-}
-
-function addToHistory(jeu, label, drawData, gameFormat) {
-  const entries = loadHistory();
+async function addToHistory(jeu, drawData, gameFormat) {
   const entry = {
     id: Date.now(),
     date: new Date().toLocaleString('fr-FR'),
     jeu,
-    label,
     text: formatBalls(drawData, gameFormat),
     gameFormat,
     draw: drawData,
   };
-  entries.unshift(entry);
-  if (entries.length > MAX_HISTORY) entries.length = MAX_HISTORY;
-  saveHistory(entries);
-  renderHistory();
+  await fetch('api/history', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry),
+  });
+  await renderHistory();
 }
 
-function deleteHistoryEntry(id) {
-  const entries = loadHistory().filter(e => e.id !== id);
-  saveHistory(entries);
-  renderHistory();
+async function deleteHistoryEntry(id) {
+  await fetch(`api/history/${id}`, { method: 'DELETE' });
+  await renderHistory();
 }
 
-function renderHistory() {
-  const entries = loadHistory();
+async function renderHistory() {
+  const entries = await loadHistory();
   historyList.innerHTML = '';
 
   if (entries.length === 0) {
@@ -101,7 +89,7 @@ function renderHistory() {
 
     const meta = document.createElement('span');
     meta.className = 'history-meta';
-    meta.textContent = `${entry.date} · ${entry.jeu.charAt(0).toUpperCase() + entry.jeu.slice(1)} · ${entry.label}`;
+    meta.textContent = `${entry.date} · ${entry.jeu.charAt(0).toUpperCase() + entry.jeu.slice(1)}`;
 
     const balls = document.createElement('span');
     balls.className = 'history-balls';
@@ -120,9 +108,9 @@ function renderHistory() {
   }
 }
 
-btnClearHistory.addEventListener('click', () => {
-  saveHistory([]);
-  renderHistory();
+btnClearHistory.addEventListener('click', async () => {
+  await fetch('api/history', { method: 'DELETE' });
+  await renderHistory();
 });
 
 // --- Rendering ---
@@ -189,18 +177,6 @@ function renderDraws(container, draws, gameFormat, jeu) {
     }
 
     card.appendChild(balls);
-
-    const saveBtn = document.createElement('button');
-    saveBtn.className = 'btn-save';
-    saveBtn.textContent = 'Jouer';
-    saveBtn.addEventListener('click', () => {
-      addToHistory(jeu, label, d, gameFormat);
-      saveBtn.textContent = '✓ Sauvegardé';
-      saveBtn.disabled = true;
-      setTimeout(() => { saveBtn.textContent = 'Jouer'; saveBtn.disabled = false; }, 1500);
-    });
-    card.appendChild(saveBtn);
-
     container.appendChild(card);
   }
 }
@@ -227,8 +203,10 @@ function renderTable(container, title, rows) {
 function renderJeu(jeu, data) {
   const drawsEl = document.getElementById(`draws-${jeu}`);
   const tablesEl = document.getElementById(`tables-${jeu}`);
+  const gameFormat = data.game_format || '';
 
-  renderDraws(drawsEl, data.draws || {}, data.game_format || '', jeu);
+  currentDraws[jeu] = { draws: data.draws || {}, gameFormat };
+  renderDraws(drawsEl, data.draws || {}, gameFormat, jeu);
 
   tablesEl.innerHTML = '';
 
@@ -277,8 +255,10 @@ async function fetchDraw() {
     const data = await res.json();
     for (const jeu of ['loto', 'euromillions']) {
       if (data[jeu]) {
+        const gameFormat = data[jeu].game_format || '';
+        currentDraws[jeu] = { draws: data[jeu].draws || {}, gameFormat };
         const drawsEl = document.getElementById(`draws-${jeu}`);
-        renderDraws(drawsEl, data[jeu].draws || {}, data[jeu].game_format || '', jeu);
+        renderDraws(drawsEl, data[jeu].draws || {}, gameFormat, jeu);
       }
     }
     clearStatus();
@@ -289,8 +269,24 @@ async function fetchDraw() {
   }
 }
 
+function setupJouerButton(jeu) {
+  const btn = document.getElementById(`btn-jouer-${jeu}`);
+  btn.addEventListener('click', async () => {
+    const state = currentDraws[jeu];
+    if (!state) return;
+    const draw = state.draws.random || state.draws.fixed;
+    if (!draw) return;
+    btn.disabled = true;
+    await addToHistory(jeu, draw, state.gameFormat);
+    btn.textContent = '✓ Sauvegardé';
+    setTimeout(() => { btn.textContent = 'Jouer'; btn.disabled = false; }, 1500);
+  });
+}
+
 btnRefresh.addEventListener('click', fetchAnalyse);
 btnDraw.addEventListener('click', fetchDraw);
+setupJouerButton('loto');
+setupJouerButton('euromillions');
 
 // Initial load
 fetchAnalyse();

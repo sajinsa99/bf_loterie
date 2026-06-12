@@ -70,20 +70,20 @@ button {
 
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Save button on draw cards */
-.btn-save {
+/* Save button per game */
+.btn-save-jeu {
   display: block;
-  margin-top: 0.7rem;
-  padding: 0.3rem 0.8rem;
+  margin-top: 1rem;
+  padding: 0.45rem 1.2rem;
   background: #2a5c2a;
   color: #7ddb7d;
-  border-radius: 5px;
-  font-size: 0.78rem;
+  border-radius: 6px;
+  font-size: 0.88rem;
   font-weight: 600;
-  width: 100%;
   transition: background 0.15s;
 }
-.btn-save:hover:not(:disabled) { background: #336633; }
+.btn-save-jeu:hover:not(:disabled) { background: #336633; }
+.btn-save-jeu:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* History panel */
 #history-panel {
