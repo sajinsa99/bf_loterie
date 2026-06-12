@@ -6,7 +6,10 @@ const btnRefresh = document.getElementById('btn-refresh');
 const btnDraw = document.getElementById('btn-draw');
 const statusEl = document.getElementById('status');
 const historyPanel = document.getElementById('history-panel');
-const historyList = document.getElementById('history-list');
+const historyLists = {
+  loto: document.getElementById('history-list-loto'),
+  euromillions: document.getElementById('history-list-euromillions'),
+};
 const btnClearHistory = document.getElementById('btn-clear-history');
 
 // Current draws per game, used by the "Jouer" buttons
@@ -84,22 +87,24 @@ async function deleteHistoryEntry(id) {
 
 async function renderHistory() {
   const entries = await loadHistory();
-  historyList.innerHTML = '';
 
-  if (entries.length === 0) {
-    historyPanel.classList.add('hidden');
-    return;
+  for (const jeu of ['loto', 'euromillions']) {
+    historyLists[jeu].innerHTML = '';
   }
 
-  historyPanel.classList.remove('hidden');
+  const hasAny = entries.length > 0;
+  historyPanel.classList.toggle('hidden', !hasAny);
 
   for (const entry of entries) {
+    const list = historyLists[entry.jeu];
+    if (!list) continue;
+
     const row = document.createElement('div');
     row.className = 'history-row';
 
     const meta = document.createElement('span');
     meta.className = 'history-meta';
-    meta.textContent = `${entry.date} · ${entry.jeu.charAt(0).toUpperCase() + entry.jeu.slice(1)}`;
+    meta.textContent = entry.date;
 
     const balls = document.createElement('span');
     balls.className = 'history-balls';
@@ -114,7 +119,7 @@ async function renderHistory() {
     row.appendChild(meta);
     row.appendChild(balls);
     row.appendChild(del);
-    historyList.appendChild(row);
+    list.appendChild(row);
   }
 }
 

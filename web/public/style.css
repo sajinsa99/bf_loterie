@@ -118,6 +118,27 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 #btn-clear-history:hover { background: #4a2828; }
 
+.history-sub {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.history-sub-section {
+  flex: 1;
+  min-width: 220px;
+}
+
+.history-sub-section h3 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #2a2a2a;
+  padding-bottom: 0.3rem;
+}
+
 .history-row {
   display: flex;
   align-items: baseline;
