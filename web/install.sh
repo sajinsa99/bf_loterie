@@ -78,7 +78,7 @@ else
 fi
 
 nginx -t
-systemctl reload nginx
+systemctl restart nginx
 
 echo ""
 echo "Done. Loterie available at https://bfablet92.hd.free.fr/loterie/"
