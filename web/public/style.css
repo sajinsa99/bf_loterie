@@ -70,6 +70,93 @@ button {
 
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Save button on draw cards */
+.btn-save {
+  display: block;
+  margin-top: 0.7rem;
+  padding: 0.3rem 0.8rem;
+  background: #2a5c2a;
+  color: #7ddb7d;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  width: 100%;
+  transition: background 0.15s;
+}
+.btn-save:hover:not(:disabled) { background: #336633; }
+
+/* History panel */
+#history-panel {
+  margin-top: 2.5rem;
+  border-top: 1px solid #333;
+  padding-top: 1.5rem;
+}
+
+#history-panel.hidden { display: none; }
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.history-header h2 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #f5c518;
+}
+
+#btn-clear-history {
+  padding: 0.25rem 0.7rem;
+  background: #3a2020;
+  color: #ff9090;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 5px;
+}
+#btn-clear-history:hover { background: #4a2828; }
+
+.history-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid #1e1e1e;
+  flex-wrap: wrap;
+}
+
+.history-row:hover { background: #161616; }
+
+.history-meta {
+  font-size: 0.72rem;
+  color: #666;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.history-balls {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e8e8e8;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.btn-delete {
+  padding: 0 0.45rem;
+  background: transparent;
+  color: #555;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.btn-delete:hover { color: #ff9090; background: #2a1a1a; }
+
 .status {
   padding: 0.6rem 1rem;
   border-radius: 6px;

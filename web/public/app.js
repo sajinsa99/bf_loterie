@@ -5,6 +5,12 @@ const powerInput = document.getElementById('power-input');
 const btnRefresh = document.getElementById('btn-refresh');
 const btnDraw = document.getElementById('btn-draw');
 const statusEl = document.getElementById('status');
+const historyPanel = document.getElementById('history-panel');
+const historyList = document.getElementById('history-list');
+const btnClearHistory = document.getElementById('btn-clear-history');
+
+const HISTORY_KEY = 'bf_loterie_history';
+const MAX_HISTORY = 50;
 
 function setStatus(msg, type = 'info') {
   statusEl.textContent = msg;
@@ -34,6 +40,93 @@ function pad(n) {
   return String(n).padStart(2, '0');
 }
 
+// --- History ---
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveHistory(entries) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+}
+
+function formatBalls(d, gameFormat) {
+  const parts = d.boules.map(n => pad(n)).join(' – ');
+  if (gameFormat === '5boules+chance' && d.chance != null) {
+    return `${parts} ✦ ${pad(d.chance)}`;
+  } else if (d.etoiles && d.etoiles.length) {
+    return `${parts} ★ ${d.etoiles.map(n => pad(n)).join(' – ')}`;
+  }
+  return parts;
+}
+
+function addToHistory(jeu, label, drawData, gameFormat) {
+  const entries = loadHistory();
+  const entry = {
+    id: Date.now(),
+    date: new Date().toLocaleString('fr-FR'),
+    jeu,
+    label,
+    text: formatBalls(drawData, gameFormat),
+    gameFormat,
+    draw: drawData,
+  };
+  entries.unshift(entry);
+  if (entries.length > MAX_HISTORY) entries.length = MAX_HISTORY;
+  saveHistory(entries);
+  renderHistory();
+}
+
+function deleteHistoryEntry(id) {
+  const entries = loadHistory().filter(e => e.id !== id);
+  saveHistory(entries);
+  renderHistory();
+}
+
+function renderHistory() {
+  const entries = loadHistory();
+  historyList.innerHTML = '';
+
+  if (entries.length === 0) {
+    historyPanel.classList.add('hidden');
+    return;
+  }
+
+  historyPanel.classList.remove('hidden');
+
+  for (const entry of entries) {
+    const row = document.createElement('div');
+    row.className = 'history-row';
+
+    const meta = document.createElement('span');
+    meta.className = 'history-meta';
+    meta.textContent = `${entry.date} · ${entry.jeu.charAt(0).toUpperCase() + entry.jeu.slice(1)} · ${entry.label}`;
+
+    const balls = document.createElement('span');
+    balls.className = 'history-balls';
+    balls.textContent = entry.text;
+
+    const del = document.createElement('button');
+    del.className = 'btn-delete';
+    del.title = 'Supprimer';
+    del.textContent = '×';
+    del.addEventListener('click', () => deleteHistoryEntry(entry.id));
+
+    row.appendChild(meta);
+    row.appendChild(balls);
+    row.appendChild(del);
+    historyList.appendChild(row);
+  }
+}
+
+btnClearHistory.addEventListener('click', () => {
+  saveHistory([]);
+  renderHistory();
+});
+
+// --- Rendering ---
+
 function renderBall(n, cls) {
   const el = document.createElement('span');
   el.className = `ball ${cls}`;
@@ -41,7 +134,7 @@ function renderBall(n, cls) {
   return el;
 }
 
-function renderDraws(container, draws, gameFormat) {
+function renderDraws(container, draws, gameFormat, jeu) {
   container.innerHTML = '';
   const entries = [
     { key: 'fixed', label: 'Fixe (déterministe)' },
@@ -96,6 +189,18 @@ function renderDraws(container, draws, gameFormat) {
     }
 
     card.appendChild(balls);
+
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'btn-save';
+    saveBtn.textContent = 'Jouer';
+    saveBtn.addEventListener('click', () => {
+      addToHistory(jeu, label, d, gameFormat);
+      saveBtn.textContent = '✓ Sauvegardé';
+      saveBtn.disabled = true;
+      setTimeout(() => { saveBtn.textContent = 'Jouer'; saveBtn.disabled = false; }, 1500);
+    });
+    card.appendChild(saveBtn);
+
     container.appendChild(card);
   }
 }
@@ -123,7 +228,7 @@ function renderJeu(jeu, data) {
   const drawsEl = document.getElementById(`draws-${jeu}`);
   const tablesEl = document.getElementById(`tables-${jeu}`);
 
-  renderDraws(drawsEl, data.draws || {}, data.game_format || '');
+  renderDraws(drawsEl, data.draws || {}, data.game_format || '', jeu);
 
   tablesEl.innerHTML = '';
 
@@ -173,7 +278,7 @@ async function fetchDraw() {
     for (const jeu of ['loto', 'euromillions']) {
       if (data[jeu]) {
         const drawsEl = document.getElementById(`draws-${jeu}`);
-        renderDraws(drawsEl, data[jeu].draws || {}, data[jeu].game_format || '');
+        renderDraws(drawsEl, data[jeu].draws || {}, data[jeu].game_format || '', jeu);
       }
     }
     clearStatus();
@@ -189,3 +294,4 @@ btnDraw.addEventListener('click', fetchDraw);
 
 // Initial load
 fetchAnalyse();
+renderHistory();
