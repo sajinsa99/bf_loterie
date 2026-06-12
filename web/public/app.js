@@ -42,6 +42,16 @@ function pad(n) {
 
 // --- History ---
 
+function formatBalls(d, gameFormat) {
+  const parts = d.boules.map(n => pad(n)).join(' – ');
+  if (gameFormat === '5boules+chance' && d.chance != null) {
+    return `${parts} ✦ ${pad(d.chance)}`;
+  } else if (d.etoiles && d.etoiles.length) {
+    return `${parts} ★ ${d.etoiles.map(n => pad(n)).join(' – ')}`;
+  }
+  return parts;
+}
+
 async function loadHistory() {
   try {
     const res = await fetch('api/history');
