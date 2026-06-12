@@ -233,6 +233,15 @@ main { display: flex; flex-direction: column; gap: 2rem; }
   padding-bottom: 0.4rem;
 }
 
+.jeu-days {
+  font-size: 0.72rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  color: #777;
+  margin-left: 0.6rem;
+}
+
 /* Draw cards */
 .draws {
   display: flex;

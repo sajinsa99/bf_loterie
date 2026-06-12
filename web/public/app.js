@@ -66,9 +66,13 @@ async function loadHistory() {
 }
 
 async function addToHistory(jeu, drawData, gameFormat) {
+  const raw = new Date().toLocaleString('fr-FR', {
+    weekday: 'long', day: '2-digit', month: '2-digit',
+    year: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
   const entry = {
     id: Date.now(),
-    date: new Date().toLocaleString('fr-FR'),
+    date: raw.charAt(0).toUpperCase() + raw.slice(1),
     jeu,
     text: formatBalls(drawData, gameFormat),
     gameFormat,
