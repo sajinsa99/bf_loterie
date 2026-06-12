@@ -5,12 +5,14 @@ const powerInput = document.getElementById('power-input');
 const btnRefresh = document.getElementById('btn-refresh');
 const btnDraw = document.getElementById('btn-draw');
 const statusEl = document.getElementById('status');
-const historyPanel = document.getElementById('history-panel');
 const historyLists = {
   loto: document.getElementById('history-list-loto'),
   euromillions: document.getElementById('history-list-euromillions'),
 };
-const btnClearHistory = document.getElementById('btn-clear-history');
+const historyPanels = {
+  loto: document.getElementById('history-loto'),
+  euromillions: document.getElementById('history-euromillions'),
+};
 
 // Current draws per game, used by the "Jouer" buttons
 const currentDraws = { loto: null, euromillions: null };
@@ -89,43 +91,44 @@ async function renderHistory() {
   const entries = await loadHistory();
 
   for (const jeu of ['loto', 'euromillions']) {
-    historyLists[jeu].innerHTML = '';
-  }
+    const list = historyLists[jeu];
+    const panel = historyPanels[jeu];
+    const jeuEntries = entries.filter(e => e.jeu === jeu);
 
-  const hasAny = entries.length > 0;
-  historyPanel.classList.toggle('hidden', !hasAny);
+    list.innerHTML = '';
+    panel.classList.toggle('hidden', jeuEntries.length === 0);
 
-  for (const entry of entries) {
-    const list = historyLists[entry.jeu];
-    if (!list) continue;
+    for (const entry of jeuEntries) {
+      const row = document.createElement('div');
+      row.className = 'history-row';
 
-    const row = document.createElement('div');
-    row.className = 'history-row';
+      const meta = document.createElement('span');
+      meta.className = 'history-meta';
+      meta.textContent = entry.date;
 
-    const meta = document.createElement('span');
-    meta.className = 'history-meta';
-    meta.textContent = entry.date;
+      const balls = document.createElement('span');
+      balls.className = 'history-balls';
+      balls.textContent = entry.text;
 
-    const balls = document.createElement('span');
-    balls.className = 'history-balls';
-    balls.textContent = entry.text;
+      const del = document.createElement('button');
+      del.className = 'btn-delete';
+      del.title = 'Supprimer';
+      del.textContent = '×';
+      del.addEventListener('click', () => deleteHistoryEntry(entry.id));
 
-    const del = document.createElement('button');
-    del.className = 'btn-delete';
-    del.title = 'Supprimer';
-    del.textContent = '×';
-    del.addEventListener('click', () => deleteHistoryEntry(entry.id));
-
-    row.appendChild(meta);
-    row.appendChild(balls);
-    row.appendChild(del);
-    list.appendChild(row);
+      row.appendChild(meta);
+      row.appendChild(balls);
+      row.appendChild(del);
+      list.appendChild(row);
+    }
   }
 }
 
-btnClearHistory.addEventListener('click', async () => {
-  await fetch('api/history', { method: 'DELETE' });
-  await renderHistory();
+document.querySelectorAll('.btn-clear-jeu').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    await fetch(`api/history?jeu=${btn.dataset.jeu}`, { method: 'DELETE' });
+    await renderHistory();
+  });
 });
 
 // --- Rendering ---

@@ -32,6 +32,13 @@
         <div class="draws" id="draws-loto"></div>
         <div class="tables" id="tables-loto"></div>
         <button type="button" class="btn-save-jeu" id="btn-jouer-loto">Jouer</button>
+        <div class="history-jeu hidden" id="history-loto">
+          <div class="history-jeu-header">
+            <span class="history-jeu-title">Historique</span>
+            <button type="button" class="btn-clear-jeu" data-jeu="loto">Tout effacer</button>
+          </div>
+          <div class="history-jeu-list" id="history-list-loto"></div>
+        </div>
       </section>
 
       <section class="jeu" id="section-euromillions">
@@ -39,25 +46,15 @@
         <div class="draws" id="draws-euromillions"></div>
         <div class="tables" id="tables-euromillions"></div>
         <button type="button" class="btn-save-jeu" id="btn-jouer-euromillions">Jouer</button>
+        <div class="history-jeu hidden" id="history-euromillions">
+          <div class="history-jeu-header">
+            <span class="history-jeu-title">Historique</span>
+            <button type="button" class="btn-clear-jeu" data-jeu="euromillions">Tout effacer</button>
+          </div>
+          <div class="history-jeu-list" id="history-list-euromillions"></div>
+        </div>
       </section>
     </main>
-
-    <section id="history-panel" class="hidden">
-      <div class="history-header">
-        <h2>Historique</h2>
-        <button type="button" id="btn-clear-history">Tout effacer</button>
-      </div>
-      <div class="history-sub">
-        <div class="history-sub-section">
-          <h3>Loto</h3>
-          <div id="history-list-loto"></div>
-        </div>
-        <div class="history-sub-section">
-          <h3>Euromillions</h3>
-          <div id="history-list-euromillions"></div>
-        </div>
-      </div>
-    </section>
 
     <footer class="help">
       <h2>Aide</h2>

@@ -85,7 +85,12 @@ app.delete('/api/history/:id', (req, res) => {
 });
 
 app.delete('/api/history', (req, res) => {
-  writeHistory([]);
+  const jeu = req.query.jeu;
+  if (jeu) {
+    writeHistory(readHistory().filter(e => e.jeu !== jeu));
+  } else {
+    writeHistory([]);
+  }
   res.json({ ok: true });
 });
 

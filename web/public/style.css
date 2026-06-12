@@ -139,6 +139,39 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   padding-bottom: 0.3rem;
 }
 
+/* Per-game history (inline under each jeu section) */
+.history-jeu {
+  margin-top: 1.2rem;
+  border-top: 1px solid #2a2a2a;
+  padding-top: 0.8rem;
+}
+
+.history-jeu.hidden { display: none; }
+
+.history-jeu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.history-jeu-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888;
+}
+
+.btn-clear-jeu {
+  padding: 0.2rem 0.6rem;
+  background: #3a2020;
+  color: #ff9090;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 4px;
+}
+.btn-clear-jeu:hover { background: #4a2828; }
+
 .history-row {
   display: flex;
   align-items: baseline;
