@@ -17,6 +17,11 @@ const historyPanels = {
 // Current draws per game, used by the "Jouer" buttons
 const currentDraws = { loto: null, euromillions: null };
 
+// --- Auth ---
+const AUTH_PASSWORD = 'bf2026';
+let isOwner = sessionStorage.getItem('bf_owner') === '1';
+const _authDone = sessionStorage.getItem('bf_owner') !== null;
+
 function setStatus(msg, type = 'info') {
   statusEl.textContent = msg;
   statusEl.className = `status ${type}`;
@@ -27,6 +32,7 @@ function clearStatus() {
 }
 
 function setLoading(on) {
+  if (!isOwner) return;
   btnRefresh.disabled = on;
   btnDraw.disabled = on;
 }
@@ -45,7 +51,75 @@ function pad(n) {
   return String(n).padStart(2, '0');
 }
 
-// --- History ---
+// --- Auth modal ---
+
+function applyVisitorLock() {
+  // Disable header controls
+  [btnRefresh, btnDraw, topInput, powerInput].forEach(el => { el.disabled = true; });
+  // Disable "Jouer" and "+ Manuel" buttons
+  document.querySelectorAll('.btn-save-jeu, .btn-add-entry, .btn-clear-jeu').forEach(el => { el.disabled = true; });
+}
+
+function showAuthBanner() {
+  const banner = document.createElement('div');
+  banner.id = 'auth-banner';
+  banner.innerHTML = `
+    <span class="auth-banner-msg">Mode visiteur — lecture seule</span>
+    <button type="button" id="auth-owner-btn">Connexion propriétaire</button>
+  `;
+  document.getElementById('app').insertAdjacentElement('afterbegin', banner);
+  document.getElementById('auth-owner-btn').addEventListener('click', () => showAuthModal(false));
+}
+
+function showAuthModal(firstVisit) {
+  const overlay = document.createElement('div');
+  overlay.id = 'auth-overlay';
+  overlay.innerHTML = `
+    <div id="auth-modal">
+      <div id="auth-modal-title">Accès propriétaire</div>
+      <input id="auth-pwd-input" type="password" placeholder="Mot de passe" autocomplete="current-password">
+      <div id="auth-modal-error" class="hidden">Mot de passe incorrect</div>
+      <div id="auth-modal-btns">
+        <button type="button" id="auth-cancel-btn">${firstVisit ? 'Visiteur' : 'Annuler'}</button>
+        <button type="button" id="auth-ok-btn">Valider</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const pwdInput = document.getElementById('auth-pwd-input');
+  const errEl = document.getElementById('auth-modal-error');
+
+  function tryLogin() {
+    if (pwdInput.value === AUTH_PASSWORD) {
+      sessionStorage.setItem('bf_owner', '1');
+      document.body.removeChild(overlay);
+      location.reload();
+    } else {
+      errEl.classList.remove('hidden');
+      pwdInput.value = '';
+      pwdInput.focus();
+    }
+  }
+
+  function onCancel() {
+    document.body.removeChild(overlay);
+    if (firstVisit) {
+      sessionStorage.setItem('bf_owner', '0');
+      applyVisitorLock();
+      showAuthBanner();
+    }
+  }
+
+  document.getElementById('auth-ok-btn').addEventListener('click', tryLogin);
+  document.getElementById('auth-cancel-btn').addEventListener('click', onCancel);
+  pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+  setTimeout(() => pwdInput.focus(), 50);
+}
+
+function promptAuth() {
+  showAuthModal(true);
+}
 
 function formatBalls(d, gameFormat) {
   const parts = d.boules.map(n => pad(n)).join(' – ');
@@ -181,7 +255,12 @@ async function renderHistory() {
       del.className = 'btn-delete';
       del.title = 'Supprimer';
       del.textContent = '×';
-      del.addEventListener('click', () => deleteHistoryEntry(entry.id));
+      if (isOwner) {
+        del.addEventListener('click', () => deleteHistoryEntry(entry.id));
+      } else {
+        del.disabled = true;
+        del.style.display = 'none';
+      }
 
       topLine.appendChild(meta);
       topLine.appendChild(del);
@@ -230,7 +309,7 @@ async function renderHistory() {
             const b = document.createElement('button');
             b.className = `ball-hist ball-hist-${type}${hit.has(n) ? ' ball-hist-hit' : ''}`;
             b.textContent = pad(n);
-            if (future) {
+            if (future || !isOwner) {
               b.disabled = true;
               b.style.cursor = 'not-allowed';
             } else {
@@ -271,11 +350,12 @@ async function renderHistory() {
       gainInput.className = 'history-gain-input';
       gainInput.value = entry.gain != null ? entry.gain : 0;
       if (future) gainInput.disabled = true;
+      if (!isOwner) gainInput.disabled = true;
 
       const gainSave = document.createElement('button');
       gainSave.className = 'btn-gain-save';
       gainSave.textContent = '€ Sauvegarder';
-      if (future) {
+      if (future || !isOwner) {
         gainSave.disabled = true;
       } else {
         gainSave.addEventListener('click', async () => {
@@ -313,6 +393,7 @@ async function renderHistory() {
 
 document.querySelectorAll('.btn-clear-jeu').forEach(btn => {
   btn.addEventListener('click', async () => {
+    if (!isOwner) return;
     await fetch(`api/history?jeu=${btn.dataset.jeu}`, { method: 'DELETE' });
     await renderHistory();
   });
@@ -477,6 +558,7 @@ async function fetchDraw() {
 function setupJouerButton(jeu) {
   const btn = document.getElementById(`btn-jouer-${jeu}`);
   btn.addEventListener('click', async () => {
+    if (!isOwner) return;
     const state = currentDraws[jeu];
     if (!state) return;
     if (!state.draws.fixed && !state.draws.random) return;
@@ -487,8 +569,8 @@ function setupJouerButton(jeu) {
   });
 }
 
-btnRefresh.addEventListener('click', fetchAnalyse);
-btnDraw.addEventListener('click', fetchDraw);
+btnRefresh.addEventListener('click', () => { if (isOwner) fetchAnalyse(); });
+btnDraw.addEventListener('click', () => { if (isOwner) fetchDraw(); });
 setupJouerButton('loto');
 setupJouerButton('euromillions');
 
@@ -723,6 +805,7 @@ function buildManualForm(jeu) {
 
 document.querySelectorAll('.btn-add-entry').forEach(btn => {
   btn.addEventListener('click', () => {
+    if (!isOwner) return;
     const jeu = btn.dataset.jeu;
     const form = document.getElementById(`history-form-${jeu}`);
     if (form.classList.contains('hidden')) {
@@ -737,8 +820,20 @@ document.querySelectorAll('.btn-add-entry').forEach(btn => {
 });
 
 // Initial load
-fetchAnalyse();
-renderHistory();
+if (!_authDone) {
+  // First ever visit: show modal, then load data after choice
+  fetchAnalyse();
+  renderHistory();
+  // Modal shown after a tick so DOM is ready
+  setTimeout(promptAuth, 0);
+} else {
+  if (!isOwner) {
+    applyVisitorLock();
+    showAuthBanner();
+  }
+  fetchAnalyse();
+  renderHistory();
+}
 
 // Re-render history at midnight so future entries unlock automatically
 (function scheduleMidnightRefresh() {
