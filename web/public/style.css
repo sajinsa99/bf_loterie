@@ -172,6 +172,11 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   margin-left: 0.4rem;
 }
 
+.manual-date-fmt-future {
+  font-weight: 700;
+  color: #f5c518;
+}
+
 .manual-date-input {
   padding: 0.25rem 0.5rem;
   border-radius: 5px;

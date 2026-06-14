@@ -518,9 +518,15 @@ function buildManualForm(jeu) {
   function updateDateFmt() {
     if (dateInput.value) {
       const [y, m, d] = dateInput.value.split('-');
-      dateFmt.textContent = `${d}/${m}/${y}`;
+      const selected = new Date(dateInput.value + 'T12:00:00');
+      const today = new Date();
+      today.setHours(12, 0, 0, 0);
+      const isFuture = selected > today;
+      dateFmt.textContent = isFuture ? `${d}/${m}/${y} ⏳` : `${d}/${m}/${y}`;
+      dateFmt.classList.toggle('manual-date-fmt-future', isFuture);
     } else {
       dateFmt.textContent = '';
+      dateFmt.classList.remove('manual-date-fmt-future');
     }
   }
   updateDateFmt();
