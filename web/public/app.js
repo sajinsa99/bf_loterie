@@ -91,6 +91,31 @@ async function deleteHistoryEntry(id) {
   await renderHistory();
 }
 
+function parseBallsText(text, gameFormat) {
+  if (!text) return null;
+  try {
+    if (gameFormat === '5boules+chance') {
+      const [boulePart, chancePart] = text.split('✦');
+      const boules = boulePart.trim().split('–').map(s => parseInt(s.trim(), 10));
+      const chance = chancePart ? parseInt(chancePart.trim(), 10) : null;
+      return { boules, chance };
+    } else {
+      const [boulePart, etoilesPart] = text.split('★');
+      const boules = boulePart.trim().split('–').map(s => parseInt(s.trim(), 10));
+      const etoiles = etoilesPart ? etoilesPart.trim().split('–').map(s => parseInt(s.trim(), 10)) : [];
+      return { boules, etoiles };
+    }
+  } catch { return null; }
+}
+
+async function updateHistoryEntry(id, patch) {
+  await fetch(`api/history/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
+}
+
 async function renderHistory() {
   const entries = await loadHistory();
 
@@ -106,13 +131,13 @@ async function renderHistory() {
       const row = document.createElement('div');
       row.className = 'history-row';
 
+      // Date + delete
+      const topLine = document.createElement('div');
+      topLine.className = 'history-top-line';
+
       const meta = document.createElement('span');
       meta.className = 'history-meta';
       meta.textContent = entry.date;
-
-      const balls = document.createElement('span');
-      balls.className = 'history-balls';
-      balls.textContent = entry.text;
 
       const del = document.createElement('button');
       del.className = 'btn-delete';
@@ -120,9 +145,85 @@ async function renderHistory() {
       del.textContent = '×';
       del.addEventListener('click', () => deleteHistoryEntry(entry.id));
 
-      row.appendChild(meta);
-      row.appendChild(balls);
-      row.appendChild(del);
+      topLine.appendChild(meta);
+      topLine.appendChild(del);
+      row.appendChild(topLine);
+
+      // Clickable balls
+      if (!entry.draw && entry.text) {
+        const parsed = parseBallsText(entry.text, entry.gameFormat);
+        if (parsed) {
+          entry.draw = parsed;
+          updateHistoryEntry(entry.id, { draw: parsed });
+        }
+      }
+
+      if (entry.draw) {
+        const ballsLine = document.createElement('div');
+        ballsLine.className = 'history-balls-row';
+        const hit = new Set(entry.hit || []);
+
+        const allBalls = [];
+        entry.draw.boules.forEach(n => allBalls.push({ n, type: 'main' }));
+        if (entry.draw.chance != null) allBalls.push({ n: entry.draw.chance, type: 'chance' });
+        if (entry.draw.etoiles) entry.draw.etoiles.forEach(n => allBalls.push({ n, type: 'star' }));
+
+        allBalls.forEach(({ n, type }) => {
+          const b = document.createElement('button');
+          b.className = `ball-hist ball-hist-${type}${hit.has(n) ? ' ball-hist-hit' : ''}`;
+          b.textContent = pad(n);
+          b.title = hit.has(n) ? 'Clique pour désélectionner' : 'Clique pour marquer comme sorti';
+          b.addEventListener('click', async () => {
+            const newHit = new Set(entry.hit || []);
+            if (newHit.has(n)) newHit.delete(n); else newHit.add(n);
+            entry.hit = [...newHit];
+            await updateHistoryEntry(entry.id, { hit: entry.hit });
+            b.classList.toggle('ball-hist-hit', newHit.has(n));
+            b.title = newHit.has(n) ? 'Clique pour désélectionner' : 'Clique pour marquer comme sorti';
+          });
+          ballsLine.appendChild(b);
+        });
+
+        row.appendChild(ballsLine);
+      } else {
+        // fallback: plain text (old entries without draw data)
+        const balls = document.createElement('span');
+        balls.className = 'history-balls';
+        balls.textContent = entry.text;
+        row.appendChild(balls);
+      }
+
+      // Gain
+      const gainLine = document.createElement('div');
+      gainLine.className = 'history-gain-line';
+
+      const gainLabel = document.createElement('label');
+      gainLabel.className = 'history-gain-label';
+      gainLabel.textContent = 'Gain :';
+
+      const gainInput = document.createElement('input');
+      gainInput.type = 'number';
+      gainInput.min = '0';
+      gainInput.step = '0.01';
+      gainInput.className = 'history-gain-input';
+      gainInput.value = entry.gain != null ? entry.gain : 0;
+
+      const gainSave = document.createElement('button');
+      gainSave.className = 'btn-gain-save';
+      gainSave.textContent = '€ Sauvegarder';
+      gainSave.addEventListener('click', async () => {
+        const val = parseFloat(gainInput.value) || 0;
+        entry.gain = val;
+        await updateHistoryEntry(entry.id, { gain: val });
+        gainSave.textContent = '✓';
+        setTimeout(() => { gainSave.textContent = '€ Sauvegarder'; }, 1200);
+      });
+
+      gainLine.appendChild(gainLabel);
+      gainLine.appendChild(gainInput);
+      gainLine.appendChild(gainSave);
+      row.appendChild(gainLine);
+
       list.appendChild(row);
     }
   }

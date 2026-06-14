@@ -84,6 +84,16 @@ app.delete('/api/history/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+app.patch('/api/history/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const entries = readHistory();
+  const idx = entries.findIndex(e => e.id === id);
+  if (idx === -1) return res.status(404).json({ error: 'Not found' });
+  entries[idx] = { ...entries[idx], ...req.body };
+  writeHistory(entries);
+  res.json({ ok: true });
+});
+
 app.delete('/api/history', (req, res) => {
   const jeu = req.query.jeu;
   if (jeu) {
