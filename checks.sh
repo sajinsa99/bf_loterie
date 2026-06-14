@@ -134,7 +134,7 @@ step "markdownlint-cli2  tmp/README.md" \
 section "JavaScript"
 if [[ -f eslint.config.js || -f web/eslint.config.js || -f .eslintrc.json ]]; then
   step "eslint  web/server.js  web/public/app.js" \
-    "${DOCKER_RUN[@]}" eslint web/server.js web/public/app.js
+    "${DOCKER_RUN[@]}" bash -c 'cd web && eslint server.js public/app.js'
 else
   skip "eslint  (no eslint.config.js found — create one to enable)"
 fi
@@ -163,7 +163,8 @@ step "trivy  HIGH/CRITICAL CVEs" \
 
 section "Secrets"
 step "gitleaks  secrets in repo" \
-  "${DOCKER_RUN[@]}" gitleaks detect --source . --redact
+  "${DOCKER_RUN[@]}" \
+    bash -c 'git config --global --add safe.directory /work && gitleaks detect --source . --redact'
 if [[ -f .secrets.baseline ]]; then
   step "detect-secrets  new secrets vs baseline" \
     "${DOCKER_RUN[@]}" detect-secrets scan --baseline .secrets.baseline
