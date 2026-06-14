@@ -70,10 +70,127 @@ button {
 
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Save button per game */
+/* Jouer + Manuel buttons side by side */
+.jeu-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.btn-add-entry {
+  padding: 0.45rem 0.9rem;
+  background: #2a2a3a;
+  color: #9090dd;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.btn-add-entry:hover { background: #333355; }
+
+/* Manual entry form */
+.history-manual-form {
+  margin-top: 0.8rem;
+}
+.history-manual-form.hidden { display: none; }
+
+.manual-form-inner {
+  background: #181828;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.manual-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.manual-form-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888;
+}
+
+.manual-form-close {
+  padding: 0 0.4rem;
+  background: transparent;
+  color: #555;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 4px;
+}
+.manual-form-close:hover { color: #ff9090; background: #2a1a1a; }
+
+.manual-form-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.manual-form-label {
+  font-size: 0.72rem;
+  color: #666;
+  width: 5rem;
+  flex-shrink: 0;
+}
+
+.manual-inputs-group {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.manual-num-input {
+  width: 3rem;
+  padding: 0.25rem 0.3rem;
+  border-radius: 5px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #e8e8e8;
+  font-size: 0.82rem;
+  text-align: center;
+}
+.manual-num-input:focus { border-color: #555; outline: none; }
+
+.manual-sep {
+  color: #666;
+  font-size: 0.9rem;
+  padding: 0 0.1rem;
+}
+
+.manual-date-input {
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #e8e8e8;
+  font-size: 0.82rem;
+}
+.manual-date-input:focus { border-color: #555; outline: none; }
+
+.btn-manual-save {
+  align-self: flex-start;
+  padding: 0.4rem 1rem;
+  background: #1a3a1a;
+  color: #7ddb7d;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.btn-manual-save:hover { background: #234a23; }
+
+/* Save button per game (now inside .jeu-actions) */
 .btn-save-jeu {
   display: block;
-  margin-top: 1rem;
   padding: 0.45rem 1.2rem;
   background: #2a5c2a;
   color: #7ddb7d;

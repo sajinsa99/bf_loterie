@@ -455,6 +455,191 @@ btnDraw.addEventListener('click', fetchDraw);
 setupJouerButton('loto');
 setupJouerButton('euromillions');
 
+// --- Manual entry form ---
+
+const JEU_CONFIG = {
+  loto:         { boules: 5, max: 49, specials: 1, specialLabel: 'Chance', specialMax: 10, gameFormat: '5boules+chance' },
+  euromillions: { boules: 5, max: 50, specials: 2, specialLabel: 'Étoiles', specialMax: 12, gameFormat: '5boules+2etoiles' },
+};
+
+function buildNumberInputs(count, max, placeholder) {
+  return Array.from({ length: count }, (_, i) => {
+    const inp = document.createElement('input');
+    inp.type = 'number';
+    inp.min = '1';
+    inp.max = String(max);
+    inp.placeholder = placeholder || String(i + 1);
+    inp.className = 'manual-num-input';
+    return inp;
+  });
+}
+
+function collectNumbers(inputs) {
+  return inputs.map(i => parseInt(i.value, 10)).filter(n => !isNaN(n) && n > 0);
+}
+
+function buildManualForm(jeu) {
+  const cfg = JEU_CONFIG[jeu];
+  const form = document.getElementById(`history-form-${jeu}`);
+  form.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'manual-form-inner';
+
+  // Title + close
+  const header = document.createElement('div');
+  header.className = 'manual-form-header';
+  const title = document.createElement('span');
+  title.textContent = 'Saisie manuelle';
+  title.className = 'manual-form-title';
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'manual-form-close';
+  closeBtn.textContent = '×';
+  closeBtn.addEventListener('click', () => form.classList.add('hidden'));
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  wrap.appendChild(header);
+
+  // Date input
+  const dateRow = document.createElement('div');
+  dateRow.className = 'manual-form-row';
+  const dateLabel = document.createElement('label');
+  dateLabel.className = 'manual-form-label';
+  dateLabel.textContent = 'Date';
+  const dateInput = document.createElement('input');
+  dateInput.type = 'datetime-local';
+  dateInput.className = 'manual-date-input';
+  const now = new Date();
+  dateInput.value = now.toISOString().slice(0, 16);
+  dateRow.appendChild(dateLabel);
+  dateRow.appendChild(dateInput);
+  wrap.appendChild(dateRow);
+
+  // Helper to build a draw row
+  function buildDrawRow(label) {
+    const row = document.createElement('div');
+    row.className = 'manual-form-row manual-form-draw-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'manual-form-label';
+    lbl.textContent = label;
+    row.appendChild(lbl);
+
+    const boulesGroup = document.createElement('div');
+    boulesGroup.className = 'manual-inputs-group';
+    const boulesInputs = buildNumberInputs(cfg.boules, cfg.max);
+    boulesInputs.forEach(i => boulesGroup.appendChild(i));
+    row.appendChild(boulesGroup);
+
+    const sep = document.createElement('span');
+    sep.className = 'manual-sep';
+    sep.textContent = cfg.specials === 1 ? '✦' : '★';
+    row.appendChild(sep);
+
+    const specGroup = document.createElement('div');
+    specGroup.className = 'manual-inputs-group';
+    const specInputs = buildNumberInputs(cfg.specials, cfg.specialMax);
+    specInputs.forEach(i => specGroup.appendChild(i));
+    row.appendChild(specGroup);
+
+    return { row, boulesInputs, specInputs };
+  }
+
+  const fixedDraw  = buildDrawRow('Fixe');
+  const randomDraw = buildDrawRow('Aléatoire');
+  wrap.appendChild(fixedDraw.row);
+  wrap.appendChild(randomDraw.row);
+
+  // Gain
+  const gainRow = document.createElement('div');
+  gainRow.className = 'manual-form-row';
+  const gainLabel = document.createElement('label');
+  gainLabel.className = 'manual-form-label';
+  gainLabel.textContent = 'Gain (€)';
+  const gainInput = document.createElement('input');
+  gainInput.type = 'number';
+  gainInput.min = '0';
+  gainInput.step = '0.01';
+  gainInput.value = '0';
+  gainInput.className = 'history-gain-input';
+  gainRow.appendChild(gainLabel);
+  gainRow.appendChild(gainInput);
+  wrap.appendChild(gainRow);
+
+  // Save button
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.className = 'btn-manual-save';
+  saveBtn.textContent = 'Sauvegarder';
+  saveBtn.addEventListener('click', async () => {
+    const fixedBoules  = collectNumbers(fixedDraw.boulesInputs);
+    const fixedSpec    = collectNumbers(fixedDraw.specInputs);
+    const randomBoules = collectNumbers(randomDraw.boulesInputs);
+    const randomSpec   = collectNumbers(randomDraw.specInputs);
+
+    const hasFixed  = fixedBoules.length > 0;
+    const hasRandom = randomBoules.length > 0;
+    if (!hasFixed && !hasRandom) {
+      alert('Saisis au moins un tirage (fixe ou aléatoire).');
+      return;
+    }
+
+    function buildDraw(boules, spec) {
+      if (!boules.length) return null;
+      if (cfg.specials === 1) return { boules, chance: spec[0] ?? null };
+      return { boules, etoiles: spec };
+    }
+
+    const draws = {
+      fixed:  hasFixed  ? buildDraw(fixedBoules,  fixedSpec)  : null,
+      random: hasRandom ? buildDraw(randomBoules, randomSpec) : null,
+    };
+
+    const dt = dateInput.value ? new Date(dateInput.value) : new Date();
+    const dateStr = dt.toLocaleString('fr-FR', {
+      weekday: 'long', day: '2-digit', month: '2-digit',
+      year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+
+    const refDraw = draws.random || draws.fixed;
+    const entry = {
+      id: Date.now(),
+      date: dateStr.charAt(0).toUpperCase() + dateStr.slice(1),
+      jeu,
+      gameFormat: cfg.gameFormat,
+      draws,
+      text: formatBalls(refDraw, cfg.gameFormat),
+      gain: parseFloat(gainInput.value) || 0,
+    };
+
+    await fetch('api/history', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    });
+
+    form.classList.add('hidden');
+    await renderHistory();
+  });
+  wrap.appendChild(saveBtn);
+  form.appendChild(wrap);
+}
+
+document.querySelectorAll('.btn-add-entry').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const jeu = btn.dataset.jeu;
+    const form = document.getElementById(`history-form-${jeu}`);
+    if (form.classList.contains('hidden')) {
+      buildManualForm(jeu);
+      form.classList.remove('hidden');
+      // show history panel too
+      historyPanels[jeu].classList.remove('hidden');
+    } else {
+      form.classList.add('hidden');
+    }
+  });
+});
+
 // Initial load
 fetchAnalyse();
 renderHistory();
