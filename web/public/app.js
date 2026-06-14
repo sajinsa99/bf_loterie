@@ -508,10 +508,10 @@ function buildManualForm(jeu) {
   dateLabel.className = 'manual-form-label';
   dateLabel.textContent = 'Date';
   const dateInput = document.createElement('input');
-  dateInput.type = 'datetime-local';
+  dateInput.type = 'date';
   dateInput.className = 'manual-date-input';
   const now = new Date();
-  dateInput.value = now.toISOString().slice(0, 16);
+  dateInput.value = now.toISOString().slice(0, 10);
   dateRow.appendChild(dateLabel);
   dateRow.appendChild(dateInput);
   wrap.appendChild(dateRow);
@@ -595,10 +595,9 @@ function buildManualForm(jeu) {
       random: hasRandom ? buildDraw(randomBoules, randomSpec) : null,
     };
 
-    const dt = dateInput.value ? new Date(dateInput.value) : new Date();
+    const dt = dateInput.value ? new Date(dateInput.value + 'T12:00:00') : new Date();
     const dateStr = dt.toLocaleString('fr-FR', {
-      weekday: 'long', day: '2-digit', month: '2-digit',
-      year: 'numeric', hour: '2-digit', minute: '2-digit',
+      weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
     });
 
     const refDraw = draws.random || draws.fixed;
