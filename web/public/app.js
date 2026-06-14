@@ -65,7 +65,7 @@ async function loadHistory() {
   } catch { return []; }
 }
 
-async function addToHistory(jeu, drawData, gameFormat) {
+async function addToHistory(jeu, draws, gameFormat) {
   const raw = new Date().toLocaleString('fr-FR', {
     weekday: 'long', day: '2-digit', month: '2-digit',
     year: 'numeric', hour: '2-digit', minute: '2-digit',
@@ -74,9 +74,13 @@ async function addToHistory(jeu, drawData, gameFormat) {
     id: Date.now(),
     date: raw.charAt(0).toUpperCase() + raw.slice(1),
     jeu,
-    text: formatBalls(drawData, gameFormat),
     gameFormat,
-    draw: drawData,
+    draws: {
+      fixed: draws.fixed || null,
+      random: draws.random || null,
+    },
+    // legacy text for fallback display
+    text: formatBalls(draws.random || draws.fixed, gameFormat),
   };
   await fetch('api/history', {
     method: 'POST',
@@ -116,6 +120,9 @@ async function updateHistoryEntry(id, patch) {
   });
 }
 
+const HISTORY_PAGE = 10;
+const historyExpanded = { loto: false, euromillions: false };
+
 async function renderHistory() {
   const entries = await loadHistory();
 
@@ -126,8 +133,12 @@ async function renderHistory() {
 
     list.innerHTML = '';
     panel.classList.toggle('hidden', jeuEntries.length === 0);
+    if (jeuEntries.length === 0) continue;
 
-    for (const entry of jeuEntries) {
+    const expanded = historyExpanded[jeu];
+    const visible = expanded ? jeuEntries : jeuEntries.slice(0, HISTORY_PAGE);
+
+    for (const entry of visible) {
       const row = document.createElement('div');
       row.className = 'history-row';
 
@@ -149,42 +160,62 @@ async function renderHistory() {
       topLine.appendChild(del);
       row.appendChild(topLine);
 
-      // Clickable balls
-      if (!entry.draw && entry.text) {
+      // Upgrade legacy entries: single draw → draws object
+      if (!entry.draws && entry.draw) {
+        entry.draws = { fixed: null, random: entry.draw };
+        updateHistoryEntry(entry.id, { draws: entry.draws });
+      }
+      if (!entry.draws && entry.text) {
         const parsed = parseBallsText(entry.text, entry.gameFormat);
         if (parsed) {
-          entry.draw = parsed;
-          updateHistoryEntry(entry.id, { draw: parsed });
+          entry.draws = { fixed: null, random: parsed };
+          updateHistoryEntry(entry.id, { draws: entry.draws });
         }
       }
 
-      if (entry.draw) {
-        const ballsLine = document.createElement('div');
-        ballsLine.className = 'history-balls-row';
-        const hit = new Set(entry.hit || []);
+      if (entry.draws && (entry.draws.fixed || entry.draws.random)) {
+        const drawDefs = [
+          { key: 'fixed',  label: 'Fixe',      hitKey: 'hit_fixed' },
+          { key: 'random', label: 'Aléatoire',  hitKey: 'hit_random' },
+        ];
+        for (const { key, label, hitKey } of drawDefs) {
+          const d = entry.draws[key];
+          if (!d) continue;
 
-        const allBalls = [];
-        entry.draw.boules.forEach(n => allBalls.push({ n, type: 'main' }));
-        if (entry.draw.chance != null) allBalls.push({ n: entry.draw.chance, type: 'chance' });
-        if (entry.draw.etoiles) entry.draw.etoiles.forEach(n => allBalls.push({ n, type: 'star' }));
+          const drawBlock = document.createElement('div');
+          drawBlock.className = 'history-draw-block';
 
-        allBalls.forEach(({ n, type }) => {
-          const b = document.createElement('button');
-          b.className = `ball-hist ball-hist-${type}${hit.has(n) ? ' ball-hist-hit' : ''}`;
-          b.textContent = pad(n);
-          b.title = hit.has(n) ? 'Clique pour désélectionner' : 'Clique pour marquer comme sorti';
-          b.addEventListener('click', async () => {
-            const newHit = new Set(entry.hit || []);
-            if (newHit.has(n)) newHit.delete(n); else newHit.add(n);
-            entry.hit = [...newHit];
-            await updateHistoryEntry(entry.id, { hit: entry.hit });
-            b.classList.toggle('ball-hist-hit', newHit.has(n));
-            b.title = newHit.has(n) ? 'Clique pour désélectionner' : 'Clique pour marquer comme sorti';
+          const drawLabel = document.createElement('span');
+          drawLabel.className = 'history-draw-label';
+          drawLabel.textContent = label;
+          drawBlock.appendChild(drawLabel);
+
+          const ballsLine = document.createElement('div');
+          ballsLine.className = 'history-balls-row';
+          const hit = new Set(entry[hitKey] || []);
+
+          const allBalls = [];
+          d.boules.forEach(n => allBalls.push({ n, type: 'main' }));
+          if (d.chance != null) allBalls.push({ n: d.chance, type: 'chance' });
+          if (d.etoiles) d.etoiles.forEach(n => allBalls.push({ n, type: 'star' }));
+
+          allBalls.forEach(({ n, type }) => {
+            const b = document.createElement('button');
+            b.className = `ball-hist ball-hist-${type}${hit.has(n) ? ' ball-hist-hit' : ''}`;
+            b.textContent = pad(n);
+            b.addEventListener('click', async () => {
+              const newHit = new Set(entry[hitKey] || []);
+              if (newHit.has(n)) newHit.delete(n); else newHit.add(n);
+              entry[hitKey] = [...newHit];
+              await updateHistoryEntry(entry.id, { [hitKey]: entry[hitKey] });
+              b.classList.toggle('ball-hist-hit', newHit.has(n));
+            });
+            ballsLine.appendChild(b);
           });
-          ballsLine.appendChild(b);
-        });
 
-        row.appendChild(ballsLine);
+          drawBlock.appendChild(ballsLine);
+          row.appendChild(drawBlock);
+        }
       } else {
         // fallback: plain text (old entries without draw data)
         const balls = document.createElement('span');
@@ -225,6 +256,20 @@ async function renderHistory() {
       row.appendChild(gainLine);
 
       list.appendChild(row);
+    }
+
+    // "Voir plus / Réduire" button
+    if (jeuEntries.length > HISTORY_PAGE) {
+      const moreBtn = document.createElement('button');
+      moreBtn.className = 'btn-history-more';
+      moreBtn.textContent = expanded
+        ? `Réduire (afficher les ${HISTORY_PAGE} derniers)`
+        : `Voir plus (${jeuEntries.length - HISTORY_PAGE} entrées masquées)`;
+      moreBtn.addEventListener('click', () => {
+        historyExpanded[jeu] = !historyExpanded[jeu];
+        renderHistory();
+      });
+      list.appendChild(moreBtn);
     }
   }
 }
@@ -397,10 +442,9 @@ function setupJouerButton(jeu) {
   btn.addEventListener('click', async () => {
     const state = currentDraws[jeu];
     if (!state) return;
-    const draw = state.draws.random || state.draws.fixed;
-    if (!draw) return;
+    if (!state.draws.fixed && !state.draws.random) return;
     btn.disabled = true;
-    await addToHistory(jeu, draw, state.gameFormat);
+    await addToHistory(jeu, state.draws, state.gameFormat);
     btn.textContent = '✓ Sauvegardé';
     setTimeout(() => { btn.textContent = 'Jouer'; btn.disabled = false; }, 1500);
   });

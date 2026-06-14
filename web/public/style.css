@@ -202,6 +202,23 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   letter-spacing: 0.02em;
 }
 
+/* Per-draw block in history (Fixe / Aléatoire) */
+.history-draw-block {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.history-draw-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #555;
+  width: 5rem;
+  flex-shrink: 0;
+}
+
 /* Clickable balls in history */
 .history-balls-row {
   display: flex;
@@ -269,6 +286,22 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   transition: background 0.15s;
 }
 .btn-gain-save:hover { background: #234a23; }
+
+.btn-history-more {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.35rem 0;
+  background: transparent;
+  color: #666;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid #2a2a2a;
+  border-radius: 5px;
+  text-align: center;
+  transition: color 0.15s, border-color 0.15s;
+}
+.btn-history-more:hover { color: #aaa; border-color: #444; }
 
 .btn-delete {
   padding: 0 0.45rem;
