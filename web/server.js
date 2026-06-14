@@ -12,10 +12,33 @@ const ANALYSE_PY = path.join(__dirname, '..', 'analyse.py');
 const HISTORY_FILE = process.env.HISTORY_FILE || path.join(__dirname, 'history.json');
 const MAX_HISTORY = 50;
 
+// Load .env from same directory (simple parser, no extra dependency)
+function loadDotEnv() {
+  try {
+    const raw = fs.readFileSync(path.join(__dirname, '.env'), 'utf8');
+    raw.split(/\r?\n/).forEach(line => {
+      const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*)\s*$/);
+      if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^['"]|['"]$/g, '');
+    });
+  } catch { /* .env absent → rely on real env vars */ }
+}
+loadDotEnv();
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache'),
 }));
+
+// Auth endpoint — password never leaves the server
+app.post('/api/auth', (req, res) => {
+  const { password } = req.body || {};
+  const expected = process.env.OWNER_PASSWORD;
+  if (!expected) return res.status(500).json({ error: 'OWNER_PASSWORD not configured' });
+  if (typeof password === 'string' && password === expected) {
+    return res.json({ ok: true });
+  }
+  res.status(401).json({ ok: false });
+});
 
 function runAnalyse(args, res) {
   execFile(PYTHON, [ANALYSE_PY, ...args], { timeout: 60000 }, (err, stdout, stderr) => {

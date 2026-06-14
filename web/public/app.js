@@ -18,9 +18,24 @@ const historyPanels = {
 const currentDraws = { loto: null, euromillions: null };
 
 // --- Auth ---
-const AUTH_PASSWORD = 'bf2026';
-let isOwner = sessionStorage.getItem('bf_owner') === '1';
-const _authDone = sessionStorage.getItem('bf_owner') !== null;
+const AUTH_SESSION_MS = 60 * 60 * 1000; // 1 hour
+
+function _ownerExpiry() {
+  return parseInt(localStorage.getItem('bf_owner_until') || '0', 10);
+}
+let isOwner = Date.now() < _ownerExpiry();
+const _authDone = localStorage.getItem('bf_owner_until') !== null;
+
+// If session has expired, revert to visitor silently
+if (!isOwner && _authDone && _ownerExpiry() > 0) {
+  localStorage.setItem('bf_owner_until', '0');
+}
+
+// Auto-lock when session expires (page left open)
+if (isOwner) {
+  const msLeft = _ownerExpiry() - Date.now();
+  setTimeout(() => { location.reload(); }, msLeft);
+}
 
 function setStatus(msg, type = 'info') {
   statusEl.textContent = msg;
@@ -91,21 +106,32 @@ function showAuthModal(firstVisit) {
   const errEl = document.getElementById('auth-modal-error');
 
   function tryLogin() {
-    if (pwdInput.value === AUTH_PASSWORD) {
-      sessionStorage.setItem('bf_owner', '1');
-      document.body.removeChild(overlay);
-      location.reload();
-    } else {
+    const pwd = pwdInput.value;
+    pwdInput.value = '';
+    fetch('api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd }),
+    }).then(r => r.json()).then(data => {
+      if (data.ok) {
+        localStorage.setItem('bf_owner_until', String(Date.now() + AUTH_SESSION_MS));
+        document.body.removeChild(overlay);
+        location.reload();
+      } else {
+        errEl.classList.remove('hidden');
+        pwdInput.focus();
+      }
+    }).catch(() => {
+      errEl.textContent = 'Erreur réseau';
       errEl.classList.remove('hidden');
-      pwdInput.value = '';
       pwdInput.focus();
-    }
+    });
   }
 
   function onCancel() {
     document.body.removeChild(overlay);
     if (firstVisit) {
-      sessionStorage.setItem('bf_owner', '0');
+      localStorage.setItem('bf_owner_until', '0'); // visitor, don't ask again
       applyVisitorLock();
       showAuthBanner();
     }

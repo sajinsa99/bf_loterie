@@ -35,8 +35,21 @@ chown -R www-data:www-data "$LOTERIE_DIR"
 
 echo "==> Copying web to $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
-rsync -a --exclude='.git' --exclude='node_modules' \
+rsync -a --exclude='.git' --exclude='node_modules' --exclude='.env' \
   "$SCRIPT_DIR/" "$INSTALL_DIR/"
+
+# .env : ne jamais écraser ; créer depuis .env.example si absent
+ENV_FILE="$INSTALL_DIR/.env"
+if [[ ! -f "$ENV_FILE" ]]; then
+  if [[ -f "$INSTALL_DIR/.env.example" ]]; then
+    cp "$INSTALL_DIR/.env.example" "$ENV_FILE"
+    echo "    ⚠️  Created $ENV_FILE from .env.example — change OWNER_PASSWORD before use!"
+  else
+    echo "    ⚠️  $ENV_FILE absent and no .env.example found — create it manually."
+  fi
+else
+  echo "    .env already present on server, not overwritten."
+fi
 
 echo "==> Installing npm dependencies..."
 cd "$INSTALL_DIR"
