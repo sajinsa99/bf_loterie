@@ -623,6 +623,20 @@ function buildManualForm(jeu) {
   gainRow.appendChild(gainInput);
   wrap.appendChild(gainRow);
 
+  // Error display zone
+  const errorEl = document.createElement('div');
+  errorEl.className = 'manual-error hidden';
+  wrap.appendChild(errorEl);
+
+  function showError(html) {
+    errorEl.innerHTML = html;
+    errorEl.classList.remove('hidden');
+  }
+  function hideError() {
+    errorEl.innerHTML = '';
+    errorEl.classList.add('hidden');
+  }
+
   // Save button
   const saveBtn = document.createElement('button');
   saveBtn.type = 'button';
@@ -637,9 +651,33 @@ function buildManualForm(jeu) {
     const hasFixed  = fixedBoules.length > 0;
     const hasRandom = randomBoules.length > 0;
     if (!hasFixed && !hasRandom) {
-      alert('Saisis au moins un tirage (fixe ou aléatoire).');
+      showError('Saisis au moins un tirage (fixe ou aléatoire).');
       return;
     }
+
+    // Duplicate detection
+    const errors = [];
+
+    function findDups(nums, label) {
+      const seen = new Set(), dups = new Set();
+      nums.forEach(n => { if (seen.has(n)) dups.add(n); else seen.add(n); });
+      if (dups.size) errors.push(`${label} : doublon(s) → ${[...dups].map(n => pad(n)).join(', ')}`);
+    }
+
+    if (hasFixed)  findDups(fixedBoules,  'Fixe – boules');
+    if (hasRandom) findDups(randomBoules, 'Aléatoire – boules');
+    // étoiles uniquement pour euromillions (specials === 2)
+    if (cfg.specials === 2) {
+      if (hasFixed  && fixedSpec.length  > 1) findDups(fixedSpec,  'Fixe – étoiles');
+      if (hasRandom && randomSpec.length > 1) findDups(randomSpec, 'Aléatoire – étoiles');
+    }
+
+    if (errors.length) {
+      showError(errors.join('<br>'));
+      return;
+    }
+
+    hideError();
 
     function buildDraw(boules, spec) {
       if (!boules.length) return null;
