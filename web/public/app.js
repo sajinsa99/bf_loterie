@@ -511,7 +511,8 @@ function buildManualForm(jeu) {
   dateInput.type = 'date';
   dateInput.className = 'manual-date-input';
   const now = new Date();
-  dateInput.value = now.toISOString().slice(0, 10);
+  // local date → évite le décalage UTC
+  dateInput.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 
   const dateFmt = document.createElement('span');
   dateFmt.className = 'manual-date-fmt';
@@ -530,6 +531,7 @@ function buildManualForm(jeu) {
     }
   }
   updateDateFmt();
+  dateInput.addEventListener('change', updateDateFmt);
   dateInput.addEventListener('input', updateDateFmt);
 
   dateRow.appendChild(dateLabel);
