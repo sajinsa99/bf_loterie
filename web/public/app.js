@@ -155,15 +155,27 @@ async function renderHistory() {
       const row = document.createElement('div');
       row.className = 'history-row';
 
-      // Date + delete
       const future = entryIsFuture(entry);
+      const noData = !future
+        && (!entry.hit_fixed || entry.hit_fixed.length === 0)
+        && (!entry.hit_random || entry.hit_random.length === 0)
+        && (!entry.gain || entry.gain === 0);
       const topLine = document.createElement('div');
       topLine.className = 'history-top-line';
 
       const meta = document.createElement('span');
       meta.className = 'history-meta';
-      meta.textContent = future ? `${entry.date} ⏳` : entry.date;
-      if (future) { meta.style.fontWeight = '700'; meta.style.color = '#f5c518'; }
+      if (future) {
+        meta.textContent = `${entry.date} ⏳`;
+        meta.style.fontWeight = '700';
+        meta.style.color = '#f5c518';
+      } else if (noData) {
+        meta.textContent = `${entry.date} 📋`;
+        meta.style.color = '#888';
+        meta.title = 'Aucun numéro sélectionné ni gain saisi';
+      } else {
+        meta.textContent = entry.date;
+      }
 
       const del = document.createElement('button');
       del.className = 'btn-delete';
