@@ -23,6 +23,14 @@ const AUTH_SESSION_MS = 60 * 60 * 1000; // 1 hour
 function _ownerExpiry() {
   return parseInt(localStorage.getItem('bf_owner_until') || '0', 10);
 }
+function _ownerToken() {
+  return sessionStorage.getItem('bf_owner_token') || null;
+}
+function _authHeaders() {
+  const t = _ownerToken();
+  return t ? { 'Content-Type': 'application/json', 'Authorization': `Bearer ${t}` }
+           : { 'Content-Type': 'application/json' };
+}
 let isOwner = Date.now() < _ownerExpiry();
 const _authDone = localStorage.getItem('bf_owner_until') !== null;
 
@@ -34,7 +42,7 @@ if (!isOwner && _authDone && _ownerExpiry() > 0) {
 // Auto-lock when session expires (page left open)
 if (isOwner) {
   const msLeft = _ownerExpiry() - Date.now();
-  setTimeout(() => { location.reload(); }, msLeft);
+  setTimeout(() => { sessionStorage.removeItem('bf_owner_token'); location.reload(); }, msLeft);
 }
 
 function setStatus(msg, type = 'info') {
@@ -115,6 +123,7 @@ function showAuthModal(firstVisit) {
     }).then(r => r.json()).then(data => {
       if (data.ok) {
         localStorage.setItem('bf_owner_until', String(Date.now() + AUTH_SESSION_MS));
+        sessionStorage.setItem('bf_owner_token', data.token);
         document.body.removeChild(overlay);
         location.reload();
       } else {
@@ -184,14 +193,14 @@ async function addToHistory(jeu, draws, gameFormat) {
   };
   await fetch('api/history', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: _authHeaders(),
     body: JSON.stringify(entry),
   });
   await renderHistory();
 }
 
 async function deleteHistoryEntry(id) {
-  await fetch(`api/history/${id}`, { method: 'DELETE' });
+  await fetch(`api/history/${id}`, { method: 'DELETE', headers: _authHeaders() });
   await renderHistory();
 }
 
@@ -215,7 +224,7 @@ function parseBallsText(text, gameFormat) {
 async function updateHistoryEntry(id, patch) {
   await fetch(`api/history/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: _authHeaders(),
     body: JSON.stringify(patch),
   });
 }
@@ -420,7 +429,7 @@ async function renderHistory() {
 document.querySelectorAll('.btn-clear-jeu').forEach(btn => {
   btn.addEventListener('click', async () => {
     if (!isOwner) return;
-    await fetch(`api/history?jeu=${btn.dataset.jeu}`, { method: 'DELETE' });
+    await fetch(`api/history?jeu=${btn.dataset.jeu}`, { method: 'DELETE', headers: _authHeaders() });
     await renderHistory();
   });
 });
@@ -818,7 +827,7 @@ function buildManualForm(jeu) {
 
     await fetch('api/history', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: _authHeaders(),
       body: JSON.stringify(entry),
     });
 

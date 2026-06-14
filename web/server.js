@@ -3,7 +3,10 @@
 const { execFile } = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const express = require('express');
+
+let ownerToken = null;
 
 const app = express();
 const PORT = process.env.PORT || 6000;
@@ -35,10 +38,20 @@ app.post('/api/auth', (req, res) => {
   const expected = process.env.OWNER_PASSWORD;
   if (!expected) return res.status(500).json({ error: 'OWNER_PASSWORD not configured' });
   if (typeof password === 'string' && password === expected) {
-    return res.json({ ok: true });
+    ownerToken = crypto.randomBytes(32).toString('hex');
+    return res.json({ ok: true, token: ownerToken });
   }
   res.status(401).json({ ok: false });
 });
+
+function requireOwner(req, res, next) {
+  const auth = req.headers['authorization'] || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!ownerToken || token !== ownerToken) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+}
 
 function runAnalyse(args, res) {
   execFile(PYTHON, [ANALYSE_PY, ...args], { timeout: 60000 }, (err, stdout, stderr) => {
@@ -88,7 +101,7 @@ app.get('/api/history', (req, res) => {
   res.json(readHistory());
 });
 
-app.post('/api/history', (req, res) => {
+app.post('/api/history', requireOwner, (req, res) => {
   const entry = req.body;
   if (!entry || typeof entry !== 'object' || !entry.id) {
     return res.status(400).json({ error: 'Invalid entry' });
@@ -100,14 +113,14 @@ app.post('/api/history', (req, res) => {
   res.json({ ok: true });
 });
 
-app.delete('/api/history/:id', (req, res) => {
+app.delete('/api/history/:id', requireOwner, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const entries = readHistory().filter(e => e.id !== id);
   writeHistory(entries);
   res.json({ ok: true });
 });
 
-app.patch('/api/history/:id', (req, res) => {
+app.patch('/api/history/:id', requireOwner, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const entries = readHistory();
   const idx = entries.findIndex(e => e.id === id);
@@ -117,7 +130,7 @@ app.patch('/api/history/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-app.delete('/api/history', (req, res) => {
+app.delete('/api/history', requireOwner, (req, res) => {
   const jeu = req.query.jeu;
   if (jeu) {
     writeHistory(readHistory().filter(e => e.jeu !== jeu));
