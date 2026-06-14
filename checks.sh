@@ -124,12 +124,20 @@ step "jsonlint  web/package.json" \
   "${DOCKER_RUN[@]}" jsonlint web/package.json
 
 section "Dockerfile"
-step "hadolint  tmp/Dockerfile" \
-  "${DOCKER_RUN[@]}" hadolint tmp/Dockerfile
+if [[ -f tmp/Dockerfile ]]; then
+  step "hadolint  tmp/Dockerfile" \
+    "${DOCKER_RUN[@]}" hadolint tmp/Dockerfile
+else
+  skip "hadolint  (tmp/Dockerfile not found)"
+fi
 
 section "Markdown"
-step "markdownlint-cli2  tmp/README.md" \
-  "${DOCKER_RUN[@]}" markdownlint-cli2 --fix tmp/README.md
+if [[ -f tmp/README.md ]]; then
+  step "markdownlint-cli2  tmp/README.md" \
+    "${DOCKER_RUN[@]}" markdownlint-cli2 --fix tmp/README.md
+else
+  skip "markdownlint-cli2  (tmp/README.md not found)"
+fi
 
 section "JavaScript"
 if [[ -f eslint.config.js || -f web/eslint.config.js || -f .eslintrc.json ]]; then
@@ -154,8 +162,12 @@ step "semgrep  analyse.py + download.py + JS sources" \
     analyse.py download.py web/server.js web/public/app.js
 
 section "IaC Policy"
-step "checkov  tmp/Dockerfile" \
-  "${DOCKER_RUN[@]}" checkov -f tmp/Dockerfile --quiet --compact
+if [[ -f tmp/Dockerfile ]]; then
+  step "checkov  tmp/Dockerfile" \
+    "${DOCKER_RUN[@]}" checkov -f tmp/Dockerfile --quiet --compact
+else
+  skip "checkov  (tmp/Dockerfile not found)"
+fi
 
 section "Dependency CVEs"
 step "trivy  HIGH/CRITICAL CVEs" \

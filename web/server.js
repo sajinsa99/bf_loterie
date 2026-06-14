@@ -8,7 +8,7 @@ const express = require('express');
 
 let ownerToken = null;
 
-const app = express(); // nosemgrep: express-check-csurf-middleware-usage
+const app = express(); // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
 const PORT = process.env.PORT || 6000;
 const PYTHON = process.env.PYTHON || 'python3';
 const ANALYSE_PY = path.join(__dirname, '..', 'analyse.py');

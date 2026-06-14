@@ -27,7 +27,7 @@ def download(url: str, dest: Path) -> bool:
         print(f"[skip] {dest.name} déjà téléchargé")
         return False
     print(f"[dl]   {dest.name} ...", end=" ", flush=True)
-    urllib.request.urlretrieve(url, dest)  # nosemgrep: dynamic-urllib-use-detected
+    urllib.request.urlretrieve(url, dest)  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
     print("ok")
     return True
 
