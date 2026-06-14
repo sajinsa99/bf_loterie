@@ -508,13 +508,27 @@ function buildManualForm(jeu) {
   dateLabel.className = 'manual-form-label';
   dateLabel.textContent = 'Date';
   const dateInput = document.createElement('input');
-  dateInput.type = 'text';
-  dateInput.placeholder = 'jj/mm/aaaa';
+  dateInput.type = 'date';
   dateInput.className = 'manual-date-input';
   const now = new Date();
-  dateInput.value = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+  dateInput.value = now.toISOString().slice(0, 10);
+
+  const dateFmt = document.createElement('span');
+  dateFmt.className = 'manual-date-fmt';
+  function updateDateFmt() {
+    if (dateInput.value) {
+      const [y, m, d] = dateInput.value.split('-');
+      dateFmt.textContent = `${d}/${m}/${y}`;
+    } else {
+      dateFmt.textContent = '';
+    }
+  }
+  updateDateFmt();
+  dateInput.addEventListener('input', updateDateFmt);
+
   dateRow.appendChild(dateLabel);
   dateRow.appendChild(dateInput);
+  dateRow.appendChild(dateFmt);
   wrap.appendChild(dateRow);
 
   // Helper to build a draw row
@@ -596,14 +610,7 @@ function buildManualForm(jeu) {
       random: hasRandom ? buildDraw(randomBoules, randomSpec) : null,
     };
 
-    let dt;
-    if (dateInput.value) {
-      const parts = dateInput.value.split('/');
-      if (parts.length === 3) {
-        dt = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
-      }
-    }
-    if (!dt || isNaN(dt)) dt = new Date();
+    const dt = dateInput.value ? new Date(dateInput.value + 'T12:00:00') : new Date();
     const dateStr = dt.toLocaleString('fr-FR', {
       weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
     });
