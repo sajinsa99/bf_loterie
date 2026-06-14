@@ -123,6 +123,19 @@ async function updateHistoryEntry(id, patch) {
 const HISTORY_PAGE = 10;
 const historyExpanded = { loto: false, euromillions: false };
 
+function todayISO() {
+  const n = new Date();
+  return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`;
+}
+
+function entryIsFuture(entry) {
+  if (entry.dateISO) return entry.dateISO > todayISO();
+  // fallback : essaie de parser depuis la chaîne FR "Samedi 14/06/2026"
+  const m = (entry.date || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}` > todayISO();
+  return false;
+}
+
 async function renderHistory() {
   const entries = await loadHistory();
 
@@ -143,12 +156,14 @@ async function renderHistory() {
       row.className = 'history-row';
 
       // Date + delete
+      const future = entryIsFuture(entry);
       const topLine = document.createElement('div');
       topLine.className = 'history-top-line';
 
       const meta = document.createElement('span');
       meta.className = 'history-meta';
-      meta.textContent = entry.date;
+      meta.textContent = future ? `${entry.date} ⏳` : entry.date;
+      if (future) { meta.style.fontWeight = '700'; meta.style.color = '#f5c518'; }
 
       const del = document.createElement('button');
       del.className = 'btn-delete';
@@ -203,13 +218,18 @@ async function renderHistory() {
             const b = document.createElement('button');
             b.className = `ball-hist ball-hist-${type}${hit.has(n) ? ' ball-hist-hit' : ''}`;
             b.textContent = pad(n);
-            b.addEventListener('click', async () => {
-              const newHit = new Set(entry[hitKey] || []);
-              if (newHit.has(n)) newHit.delete(n); else newHit.add(n);
-              entry[hitKey] = [...newHit];
-              await updateHistoryEntry(entry.id, { [hitKey]: entry[hitKey] });
-              b.classList.toggle('ball-hist-hit', newHit.has(n));
-            });
+            if (future) {
+              b.disabled = true;
+              b.style.cursor = 'not-allowed';
+            } else {
+              b.addEventListener('click', async () => {
+                const newHit = new Set(entry[hitKey] || []);
+                if (newHit.has(n)) newHit.delete(n); else newHit.add(n);
+                entry[hitKey] = [...newHit];
+                await updateHistoryEntry(entry.id, { [hitKey]: entry[hitKey] });
+                b.classList.toggle('ball-hist-hit', newHit.has(n));
+              });
+            }
             ballsLine.appendChild(b);
           });
 
@@ -238,17 +258,22 @@ async function renderHistory() {
       gainInput.step = '0.01';
       gainInput.className = 'history-gain-input';
       gainInput.value = entry.gain != null ? entry.gain : 0;
+      if (future) gainInput.disabled = true;
 
       const gainSave = document.createElement('button');
       gainSave.className = 'btn-gain-save';
       gainSave.textContent = '€ Sauvegarder';
-      gainSave.addEventListener('click', async () => {
-        const val = parseFloat(gainInput.value) || 0;
-        entry.gain = val;
-        await updateHistoryEntry(entry.id, { gain: val });
-        gainSave.textContent = '✓';
-        setTimeout(() => { gainSave.textContent = '€ Sauvegarder'; }, 1200);
-      });
+      if (future) {
+        gainSave.disabled = true;
+      } else {
+        gainSave.addEventListener('click', async () => {
+          const val = parseFloat(gainInput.value) || 0;
+          entry.gain = val;
+          await updateHistoryEntry(entry.id, { gain: val });
+          gainSave.textContent = '✓';
+          setTimeout(() => { gainSave.textContent = '€ Sauvegarder'; }, 1200);
+        });
+      }
 
       gainLine.appendChild(gainLabel);
       gainLine.appendChild(gainInput);
@@ -511,17 +536,17 @@ function buildManualForm(jeu) {
   dateInput.type = 'date';
   dateInput.className = 'manual-date-input';
   const now = new Date();
-  const todayISO = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  dateInput.value = todayISO;
+  const localTodayISO = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  dateInput.value = localTodayISO;
 
   const dateFmt = document.createElement('span');
   dateFmt.className = 'manual-date-fmt';
 
   function updateDateFmt() {
-    const v = dateInput.value; // 'YYYY-MM-DD' ou ''
-    if (!v) { dateFmt.textContent = ''; dateFmt.classList.remove('manual-date-fmt-future'); return; }
+    const v = dateInput.value;
+    if (!v) { dateFmt.textContent = ''; dateFmt.style.fontWeight = '400'; dateFmt.style.color = '#888'; return; }
     const [y, m, d] = v.split('-');
-    const isFuture = v > todayISO; // comparaison string ISO suffit
+    const isFuture = v > localTodayISO;
     dateFmt.textContent = `${d}/${m}/${y}${isFuture ? ' ⏳' : ''}`;
     dateFmt.style.fontWeight = isFuture ? '700' : '400';
     dateFmt.style.color = isFuture ? '#f5c518' : '#888';
@@ -615,7 +640,8 @@ function buildManualForm(jeu) {
       random: hasRandom ? buildDraw(randomBoules, randomSpec) : null,
     };
 
-    const dt = dateInput.value ? new Date(dateInput.value + 'T12:00:00') : new Date();
+    const isoDate = dateInput.value || localTodayISO;
+    const dt = new Date(isoDate + 'T12:00:00');
     const dateStr = dt.toLocaleString('fr-FR', {
       weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
     });
@@ -624,6 +650,7 @@ function buildManualForm(jeu) {
     const entry = {
       id: Date.now(),
       date: dateStr.charAt(0).toUpperCase() + dateStr.slice(1),
+      dateISO: isoDate,
       jeu,
       gameFormat: cfg.gameFormat,
       draws,
@@ -662,3 +689,10 @@ document.querySelectorAll('.btn-add-entry').forEach(btn => {
 // Initial load
 fetchAnalyse();
 renderHistory();
+
+// Re-render history at midnight so future entries unlock automatically
+(function scheduleMidnightRefresh() {
+  const now = new Date();
+  const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5) - now;
+  setTimeout(() => { renderHistory(); scheduleMidnightRefresh(); }, msToMidnight);
+})();
