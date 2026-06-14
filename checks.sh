@@ -129,12 +129,12 @@ step "hadolint  tmp/Dockerfile" \
 
 section "Markdown"
 step "markdownlint-cli2  tmp/README.md" \
-  "${DOCKER_RUN[@]}" markdownlint-cli2 tmp/README.md
+  "${DOCKER_RUN[@]}" markdownlint-cli2 --fix tmp/README.md
 
 section "JavaScript"
 if [[ -f eslint.config.js || -f web/eslint.config.js || -f .eslintrc.json ]]; then
   step "eslint  web/server.js  web/public/app.js" \
-    "${DOCKER_RUN[@]}" bash -c 'cd web && eslint server.js public/app.js'
+    "${DOCKER_RUN[@]}" bash -c 'cd web && eslint --fix server.js public/app.js'
 else
   skip "eslint  (no eslint.config.js found — create one to enable)"
 fi
