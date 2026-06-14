@@ -508,10 +508,11 @@ function buildManualForm(jeu) {
   dateLabel.className = 'manual-form-label';
   dateLabel.textContent = 'Date';
   const dateInput = document.createElement('input');
-  dateInput.type = 'date';
+  dateInput.type = 'text';
+  dateInput.placeholder = 'jj/mm/aaaa';
   dateInput.className = 'manual-date-input';
   const now = new Date();
-  dateInput.value = now.toISOString().slice(0, 10);
+  dateInput.value = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
   dateRow.appendChild(dateLabel);
   dateRow.appendChild(dateInput);
   wrap.appendChild(dateRow);
@@ -595,7 +596,14 @@ function buildManualForm(jeu) {
       random: hasRandom ? buildDraw(randomBoules, randomSpec) : null,
     };
 
-    const dt = dateInput.value ? new Date(dateInput.value + 'T12:00:00') : new Date();
+    let dt;
+    if (dateInput.value) {
+      const parts = dateInput.value.split('/');
+      if (parts.length === 3) {
+        dt = new Date(`${parts[2]}-${parts[1]}-${parts[0]}T12:00:00`);
+      }
+    }
+    if (!dt || isNaN(dt)) dt = new Date();
     const dateStr = dt.toLocaleString('fr-FR', {
       weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric',
     });
