@@ -511,25 +511,22 @@ function buildManualForm(jeu) {
   dateInput.type = 'date';
   dateInput.className = 'manual-date-input';
   const now = new Date();
-  // local date → évite le décalage UTC
-  dateInput.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const todayISO = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  dateInput.value = todayISO;
 
   const dateFmt = document.createElement('span');
   dateFmt.className = 'manual-date-fmt';
+
   function updateDateFmt() {
-    if (dateInput.value) {
-      const [y, m, d] = dateInput.value.split('-');
-      const selected = new Date(dateInput.value + 'T12:00:00');
-      const today = new Date();
-      today.setHours(12, 0, 0, 0);
-      const isFuture = selected > today;
-      dateFmt.textContent = isFuture ? `${d}/${m}/${y} ⏳` : `${d}/${m}/${y}`;
-      dateFmt.classList.toggle('manual-date-fmt-future', isFuture);
-    } else {
-      dateFmt.textContent = '';
-      dateFmt.classList.remove('manual-date-fmt-future');
-    }
+    const v = dateInput.value; // 'YYYY-MM-DD' ou ''
+    if (!v) { dateFmt.textContent = ''; dateFmt.classList.remove('manual-date-fmt-future'); return; }
+    const [y, m, d] = v.split('-');
+    const isFuture = v > todayISO; // comparaison string ISO suffit
+    dateFmt.textContent = `${d}/${m}/${y}${isFuture ? ' ⏳' : ''}`;
+    dateFmt.style.fontWeight = isFuture ? '700' : '400';
+    dateFmt.style.color = isFuture ? '#f5c518' : '#888';
   }
+
   updateDateFmt();
   dateInput.addEventListener('change', updateDateFmt);
   dateInput.addEventListener('input', updateDateFmt);
