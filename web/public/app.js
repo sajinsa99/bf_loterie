@@ -172,9 +172,9 @@ function renderPieChart(entries) {
     return;
   }
 
-  const withGain     = filtered.filter(e => (e.gain || 0) > 0).length;
-  const noGainFuture = filtered.filter(e => (e.gain || 0) === 0 && entryIsFuture(e)).length;
-  const noGainPast   = filtered.filter(e => (e.gain || 0) === 0 && !entryIsFuture(e)).length;
+  const withGain        = filtered.filter(e => (e.gain || 0) > 0).length;
+  const noGainFuture    = filtered.filter(e => (e.gain || 0) === 0 && entryIsTodayOrFuture(e)).length;
+  const noGainPast      = filtered.filter(e => (e.gain || 0) === 0 && !entryIsTodayOrFuture(e)).length;
   const total = filtered.length;
 
   const slices = [
@@ -189,7 +189,7 @@ function renderPieChart(entries) {
   legend.innerHTML = [
     withGain     > 0 ? `<div class="pie-legend-item"><span class="pie-dot" style="background:#2ecc71"></span>Avec gain : ${withGain} (${pct(withGain)} %)</div>` : '',
     noGainPast   > 0 ? `<div class="pie-legend-item"><span class="pie-dot" style="background:#e74c3c"></span>Sans gain (passé) : ${noGainPast} (${pct(noGainPast)} %)</div>` : '',
-    noGainFuture > 0 ? `<div class="pie-legend-item"><span class="pie-dot" style="background:#3a8edb"></span>Sans gain (futur) : ${noGainFuture} (${pct(noGainFuture)} %)</div>` : '',
+    noGainFuture > 0 ? `<div class="pie-legend-item"><span class="pie-dot" style="background:#3a8edb"></span>Sans gain (aujourd'hui / futur) : ${noGainFuture} (${pct(noGainFuture)} %)</div>` : '',
     `<div class="pie-legend-total">Total : ${total} tirage${total > 1 ? 's' : ''}</div>`,
   ].join('');
 }
@@ -620,6 +620,13 @@ function entryIsFuture(entry) {
   // fallback : essaie de parser depuis la chaîne FR "Samedi 14/06/2026"
   const m = (entry.date || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
   if (m) return `${m[3]}-${m[2]}-${m[1]}` > todayISO();
+  return false;
+}
+
+function entryIsTodayOrFuture(entry) {
+  if (entry.dateISO) return entry.dateISO >= todayISO();
+  const m = (entry.date || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}` >= todayISO();
   return false;
 }
 
