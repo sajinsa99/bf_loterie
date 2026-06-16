@@ -125,7 +125,7 @@ app.patch('/api/history/:id', requireOwner, (req, res) => {
   const entries = readHistory();
   const idx = entries.findIndex(e => e.id === id);
   if (idx === -1) return res.status(404).json({ error: 'Not found' });
-  const ALLOWED = ['draws', 'gain', 'hits_loto', 'hits_euromillions', 'hits_stars'];
+  const ALLOWED = ['draws', 'gain', 'hit_fixed', 'hit_random', 'hits_loto', 'hits_euromillions', 'hits_stars'];
   const patch = Object.fromEntries(
     Object.entries(req.body || {}).filter(([k]) => ALLOWED.includes(k))
   );
