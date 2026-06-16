@@ -217,7 +217,7 @@ function drawLineChart(points, W, H) {
   const cW = canvas.width  / dpr;
   const cH = canvas.height / dpr;
 
-  const PAD = { top: 20, right: 20, bottom: 50, left: 60 };
+  const PAD = { top: 20, right: 20, bottom: 56, left: 76 };
   const innerW = cW - PAD.left - PAD.right;
   const innerH = cH - PAD.top  - PAD.bottom;
 
@@ -236,7 +236,7 @@ function drawLineChart(points, W, H) {
   function yOf(v) { return PAD.top  + (1 - (v - minV) / range) * innerH; }
 
   // Grid lines + Y labels
-  ctx.font = `${11 / dpr + 11}px system-ui, sans-serif`;
+  ctx.font = '12px system-ui, sans-serif';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   const TICK_COUNT = 5;
@@ -267,13 +267,14 @@ function drawLineChart(points, W, H) {
   }
 
   // X axis date labels (show at most ~8 labels)
+  ctx.font = '12px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
   ctx.fillStyle = '#888';
   const step = Math.ceil(points.length / 8);
   for (let i = 0; i < points.length; i += step) {
     const x = xOf(i);
-    ctx.fillText(points[i].label, x, PAD.top + innerH + 6);
+    ctx.fillText(points[i].label, x, PAD.top + innerH + 8);
   }
 
   function drawLine(values, color) {

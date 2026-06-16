@@ -872,7 +872,7 @@ tbody td:last-child { text-align: right; color: #aaa; }
 #line-canvas {
   display: block;
   width: 100%;
-  height: auto;
+  height: 280px;
   max-width: 820px;
 }
 
