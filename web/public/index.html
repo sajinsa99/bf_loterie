@@ -86,6 +86,21 @@
 
     <div id="global-summary" class="global-summary hidden"></div>
 
+    <div id="pie-section" class="pie-section hidden">
+      <div class="pie-header">
+        <span class="pie-title">Tirages avec / sans gain</span>
+        <select id="pie-select" class="pie-select">
+          <option value="all">Tous les jeux</option>
+          <option value="loto">Loto</option>
+          <option value="euromillions">Euromillions</option>
+        </select>
+      </div>
+      <div class="pie-chart-wrap">
+        <canvas id="pie-canvas" width="220" height="220"></canvas>
+        <div id="pie-legend" class="pie-legend"></div>
+      </div>
+    </div>
+
     <footer class="help">
       <h2>Aide</h2>
       <table class="help-table">
@@ -121,6 +136,6 @@
       </table>
     </footer>
   </div>
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

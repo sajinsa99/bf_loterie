@@ -106,7 +106,96 @@ function renderSummaries(entries) {
       <span class="summary-item ${globalNetClass}"><span class="summary-key">Net :</span> ${globalNet >= 0 ? '+' : ''}${fmt(globalNet)} €</span>
     `;
   }
+
+  renderPieChart(entries);
 }
+
+// --- Pie chart ---
+
+let _lastPieEntries = [];
+
+function drawPieChart(slices) {
+  const canvas = document.getElementById('pie-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const total = slices.reduce((s, x) => s + x.value, 0);
+  if (total === 0) {
+    ctx.fillStyle = '#444';
+    ctx.beginPath();
+    ctx.arc(W / 2, H / 2, W / 2 - 6, 0, 2 * Math.PI);
+    ctx.fill();
+    return;
+  }
+
+  const cx = W / 2, cy = H / 2, r = W / 2 - 6;
+  let startAngle = -Math.PI / 2;
+  for (const s of slices) {
+    const sweep = (s.value / total) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, startAngle + sweep);
+    ctx.closePath();
+    ctx.fillStyle = s.color;
+    ctx.fill();
+    startAngle += sweep;
+  }
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function renderPieChart(entries) {
+  _lastPieEntries = entries;
+  const pieSection = document.getElementById('pie-section');
+  const legend = document.getElementById('pie-legend');
+  const select = document.getElementById('pie-select');
+
+  if (entries.length === 0) {
+    pieSection.classList.add('hidden');
+    return;
+  }
+
+  pieSection.classList.remove('hidden');
+
+  const filter = select ? select.value : 'all';
+  const filtered = filter === 'all' ? entries : entries.filter(e => e.jeu === filter);
+
+  if (filtered.length === 0) {
+    pieSection.classList.add('hidden');
+    return;
+  }
+
+  const withGain     = filtered.filter(e => (e.gain || 0) > 0).length;
+  const noGainFuture = filtered.filter(e => (e.gain || 0) === 0 && entryIsFuture(e)).length;
+  const noGainPast   = filtered.filter(e => (e.gain || 0) === 0 && !entryIsFuture(e)).length;
+  const total = filtered.length;
+
+  const slices = [
+    { value: withGain,     color: '#2ecc71', label: 'Avec gain' },
+    { value: noGainPast,   color: '#e74c3c', label: 'Sans gain (passé)' },
+    { value: noGainFuture, color: '#3a8edb', label: 'Sans gain (futur)' },
+  ].filter(s => s.value > 0);
+
+  drawPieChart(slices);
+
+  const pct = n => Math.round((n / total) * 100);
+  legend.innerHTML = [
+    withGain     > 0 ? `<div class="pie-legend-item"><span class="pie-dot" style="background:#2ecc71"></span>Avec gain : ${withGain} (${pct(withGain)} %)</div>` : '',
+    noGainPast   > 0 ? `<div class="pie-legend-item"><span class="pie-dot" style="background:#e74c3c"></span>Sans gain (passé) : ${noGainPast} (${pct(noGainPast)} %)</div>` : '',
+    noGainFuture > 0 ? `<div class="pie-legend-item"><span class="pie-dot" style="background:#3a8edb"></span>Sans gain (futur) : ${noGainFuture} (${pct(noGainFuture)} %)</div>` : '',
+    `<div class="pie-legend-total">Total : ${total} tirage${total > 1 ? 's' : ''}</div>`,
+  ].join('');
+}
+
+document.getElementById('pie-select').addEventListener('change', () => {
+  renderPieChart(_lastPieEntries);
+});
 
 // --- Collapse/expand sections ---
 // Loto: lundi=1, mercredi=3, samedi=6 / Euromillions: mardi=2, vendredi=5
