@@ -108,6 +108,7 @@ function renderSummaries(entries) {
   }
 
   renderPieChart(entries);
+  renderLineChart(entries);
 }
 
 // --- Pie chart ---
@@ -196,6 +197,164 @@ function renderPieChart(entries) {
 document.getElementById('pie-select').addEventListener('change', () => {
   renderPieChart(_lastPieEntries);
 });
+
+// --- Line chart (gains / coûts over time) ---
+
+let _lastLineEntries = [];
+
+function drawLineChart(points, W, H) {
+  const canvas = document.getElementById('line-canvas');
+  if (!canvas) return;
+
+  // Sync canvas pixel size to its CSS-rendered size
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = Math.round((rect.width  || W) * dpr);
+  canvas.height = Math.round((rect.height || H) * dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cW = canvas.width  / dpr;
+  const cH = canvas.height / dpr;
+
+  const PAD = { top: 20, right: 20, bottom: 50, left: 60 };
+  const innerW = cW - PAD.left - PAD.right;
+  const innerH = cH - PAD.top  - PAD.bottom;
+
+  ctx.clearRect(0, 0, cW, cH);
+
+  if (points.length === 0) return;
+
+  const gains = points.map(p => p.gain);
+  const costs = points.map(p => p.cost);
+  const allVals = [...gains, ...costs];
+  const minV = Math.min(0, ...allVals);
+  const maxV = Math.max(0, ...allVals);
+  const range = maxV - minV || 1;
+
+  function xOf(i) { return PAD.left + (i / Math.max(points.length - 1, 1)) * innerW; }
+  function yOf(v) { return PAD.top  + (1 - (v - minV) / range) * innerH; }
+
+  // Grid lines + Y labels
+  ctx.font = `${11 / dpr + 11}px system-ui, sans-serif`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  const TICK_COUNT = 5;
+  for (let t = 0; t <= TICK_COUNT; t++) {
+    const v   = minV + (t / TICK_COUNT) * range;
+    const y   = yOf(v);
+    ctx.strokeStyle = '#2a2a3a';
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, y);
+    ctx.lineTo(PAD.left + innerW, y);
+    ctx.stroke();
+    ctx.fillStyle = '#888';
+    ctx.fillText(fmt(v) + ' €', PAD.left - 6, y);
+  }
+
+  // Zero line
+  if (minV < 0 && maxV > 0) {
+    const y0 = yOf(0);
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, y0);
+    ctx.lineTo(PAD.left + innerW, y0);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // X axis date labels (show at most ~8 labels)
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillStyle = '#888';
+  const step = Math.ceil(points.length / 8);
+  for (let i = 0; i < points.length; i += step) {
+    const x = xOf(i);
+    ctx.fillText(points[i].label, x, PAD.top + innerH + 6);
+  }
+
+  function drawLine(values, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 2;
+    ctx.lineJoin    = 'round';
+    ctx.beginPath();
+    values.forEach((v, i) => {
+      const x = xOf(i), y = yOf(v);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    // dots
+    ctx.fillStyle = color;
+    values.forEach((v, i) => {
+      ctx.beginPath();
+      ctx.arc(xOf(i), yOf(v), 3, 0, 2 * Math.PI);
+      ctx.fill();
+    });
+  }
+
+  drawLine(costs, '#e74c3c');
+  drawLine(gains, '#2ecc71');
+}
+
+function renderLineChart(entries) {
+  _lastLineEntries = entries;
+  const section = document.getElementById('line-section');
+  const legend  = document.getElementById('line-legend');
+  const select  = document.getElementById('line-select');
+
+  const past = entries.filter(e => !entryIsFuture(e));
+  if (past.length === 0) {
+    section.classList.add('hidden');
+    return;
+  }
+  section.classList.remove('hidden');
+
+  const filter   = select ? select.value : 'all';
+  const filtered = filter === 'all' ? past : past.filter(e => e.jeu === filter);
+
+  if (filtered.length === 0) {
+    section.classList.add('hidden');
+    return;
+  }
+
+  // Sort by ISO date then by id for same-day entries
+  const sorted = [...filtered].sort((a, b) => {
+    const da = a.dateISO || '';
+    const db = b.dateISO || '';
+    if (da !== db) return da < db ? -1 : 1;
+    return (a.id || 0) - (b.id || 0);
+  });
+
+  function shortDate(entry) {
+    if (entry.dateISO) {
+      const [y, m, d] = entry.dateISO.split('-');
+      return `${d}/${m}`;
+    }
+    const match = (entry.date || '').match(/(\d{2})\/(\d{2})/);
+    return match ? `${match[1]}/${match[2]}` : '?';
+  }
+
+  const points = sorted.map(e => ({
+    label: shortDate(e),
+    gain:  e.gain  != null ? e.gain  : 0,
+    cost:  e.cost  != null ? e.cost  : getCost(e.jeu),
+  }));
+
+  drawLineChart(points, 820, 280);
+
+  legend.innerHTML = `
+    <div class="line-legend-item"><span class="line-dash" style="background:#2ecc71"></span>Gains</div>
+    <div class="line-legend-item"><span class="line-dash" style="background:#e74c3c"></span>Coûts</div>
+  `;
+}
+
+document.getElementById('line-select').addEventListener('change', () => {
+  renderLineChart(_lastLineEntries);
+});
+
 
 // --- Collapse/expand sections ---
 // Loto: lundi=1, mercredi=3, samedi=6 / Euromillions: mardi=2, vendredi=5

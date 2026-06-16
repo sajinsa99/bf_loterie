@@ -101,6 +101,19 @@
       </div>
     </div>
 
+    <div id="line-section" class="line-section hidden">
+      <div class="line-header">
+        <span class="line-title">Évolution gains / coûts</span>
+        <select id="line-select" class="pie-select">
+          <option value="all">Tous les jeux</option>
+          <option value="loto">Loto</option>
+          <option value="euromillions">Euromillions</option>
+        </select>
+      </div>
+      <canvas id="line-canvas" width="820" height="280"></canvas>
+      <div id="line-legend" class="line-legend"></div>
+    </div>
+
     <footer class="help">
       <h2>Aide</h2>
       <table class="help-table">
@@ -136,6 +149,6 @@
       </table>
     </footer>
   </div>
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=12"></script>
 </body>
 </html>
