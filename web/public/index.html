@@ -28,38 +28,48 @@
 
     <main id="content">
       <section class="jeu" id="section-loto">
-        <h2>Loto <span class="jeu-days">Lundi · Mercredi · Samedi</span></h2>
-        <div class="draws" id="draws-loto"></div>
-        <div class="tables" id="tables-loto"></div>
-        <div class="jeu-actions">
-          <button type="button" class="btn-save-jeu" id="btn-jouer-loto">Jouer</button>
-          <button type="button" class="btn-add-entry" data-jeu="loto" title="Saisir manuellement">+ Manuel</button>
-        </div>
-        <div class="history-manual-form hidden" id="history-form-loto"></div>
-        <div class="history-jeu hidden" id="history-loto">
-          <div class="history-jeu-header">
-            <span class="history-jeu-title">Historique</span>
-            <button type="button" class="btn-clear-jeu" data-jeu="loto">Tout effacer</button>
+        <h2 class="jeu-heading" data-jeu="loto">
+          <span class="jeu-toggle" aria-expanded="false">&#9660;</span>
+          Loto <span class="jeu-days">Lundi · Mercredi · Samedi</span>
+        </h2>
+        <div class="jeu-body">
+          <div class="draws" id="draws-loto"></div>
+          <div class="tables" id="tables-loto"></div>
+          <div class="jeu-actions">
+            <button type="button" class="btn-save-jeu" id="btn-jouer-loto">Jouer</button>
+            <button type="button" class="btn-add-entry" data-jeu="loto" title="Saisir manuellement">+ Manuel</button>
           </div>
-          <div class="history-jeu-list" id="history-list-loto"></div>
+          <div class="history-manual-form hidden" id="history-form-loto"></div>
+          <div class="history-jeu hidden" id="history-loto">
+            <div class="history-jeu-header">
+              <span class="history-jeu-title">Historique</span>
+              <button type="button" class="btn-clear-jeu" data-jeu="loto">Tout effacer</button>
+            </div>
+            <div class="history-jeu-list" id="history-list-loto"></div>
+          </div>
         </div>
       </section>
 
       <section class="jeu" id="section-euromillions">
-        <h2>Euromillions <span class="jeu-days">Mardi · Vendredi</span></h2>
-        <div class="draws" id="draws-euromillions"></div>
-        <div class="tables" id="tables-euromillions"></div>
-        <div class="jeu-actions">
-          <button type="button" class="btn-save-jeu" id="btn-jouer-euromillions">Jouer</button>
-          <button type="button" class="btn-add-entry" data-jeu="euromillions" title="Saisir manuellement">+ Manuel</button>
-        </div>
-        <div class="history-manual-form hidden" id="history-form-euromillions"></div>
-        <div class="history-jeu hidden" id="history-euromillions">
-          <div class="history-jeu-header">
-            <span class="history-jeu-title">Historique</span>
-            <button type="button" class="btn-clear-jeu" data-jeu="euromillions">Tout effacer</button>
+        <h2 class="jeu-heading" data-jeu="euromillions">
+          <span class="jeu-toggle" aria-expanded="false">&#9660;</span>
+          Euromillions <span class="jeu-days">Mardi · Vendredi</span>
+        </h2>
+        <div class="jeu-body">
+          <div class="draws" id="draws-euromillions"></div>
+          <div class="tables" id="tables-euromillions"></div>
+          <div class="jeu-actions">
+            <button type="button" class="btn-save-jeu" id="btn-jouer-euromillions">Jouer</button>
+            <button type="button" class="btn-add-entry" data-jeu="euromillions" title="Saisir manuellement">+ Manuel</button>
           </div>
-          <div class="history-jeu-list" id="history-list-euromillions"></div>
+          <div class="history-manual-form hidden" id="history-form-euromillions"></div>
+          <div class="history-jeu hidden" id="history-euromillions">
+            <div class="history-jeu-header">
+              <span class="history-jeu-title">Historique</span>
+              <button type="button" class="btn-clear-jeu" data-jeu="euromillions">Tout effacer</button>
+            </div>
+            <div class="history-jeu-list" id="history-list-euromillions"></div>
+          </div>
         </div>
       </section>
     </main>

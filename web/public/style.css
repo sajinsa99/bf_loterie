@@ -466,7 +466,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 main { display: flex; flex-direction: column; gap: 2rem; }
 
-.jeu h2 {
+.jeu-heading {
   font-size: 1.2rem;
   color: #f5c518;
   margin-bottom: 1rem;
@@ -474,6 +474,36 @@ main { display: flex; flex-direction: column; gap: 2rem; }
   letter-spacing: 0.08em;
   border-bottom: 1px solid #333;
   padding-bottom: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.jeu-heading:hover { color: #ffd740; }
+
+.jeu-toggle {
+  font-size: 0.7rem;
+  display: inline-block;
+  transition: transform 0.2s;
+  color: #888;
+}
+
+.jeu.collapsed .jeu-toggle {
+  transform: rotate(-90deg);
+}
+
+.jeu-body {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  max-height: 2000px;
+  opacity: 1;
+}
+
+.jeu.collapsed .jeu-body {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .jeu-days {

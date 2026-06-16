@@ -17,6 +17,35 @@ const historyPanels = {
 // Current draws per game, used by the "Jouer" buttons
 const currentDraws = { loto: null, euromillions: null };
 
+// --- Collapse/expand sections ---
+// Loto: lundi=1, mercredi=3, samedi=6 / Euromillions: mardi=2, vendredi=5
+const DRAW_DAYS = { loto: [1, 3, 6], euromillions: [2, 5] };
+
+function isTodayDrawDay(jeu) {
+  return DRAW_DAYS[jeu].includes(new Date().getDay());
+}
+
+function setJeuCollapsed(jeu, collapsed) {
+  const section = document.getElementById(`section-${jeu}`);
+  if (!section) return;
+  section.classList.toggle('collapsed', collapsed);
+  const arrow = section.querySelector('.jeu-toggle');
+  if (arrow) arrow.setAttribute('aria-expanded', String(!collapsed));
+}
+
+function initCollapseState() {
+  for (const jeu of ['loto', 'euromillions']) {
+    setJeuCollapsed(jeu, !isTodayDrawDay(jeu));
+    const heading = document.querySelector(`#section-${jeu} .jeu-heading`);
+    if (heading) {
+      heading.addEventListener('click', () => {
+        const section = document.getElementById(`section-${jeu}`);
+        setJeuCollapsed(jeu, !section.classList.contains('collapsed'));
+      });
+    }
+  }
+}
+
 // --- Auth ---
 const AUTH_SESSION_MS = 60 * 60 * 1000; // 1 hour
 
@@ -855,6 +884,7 @@ document.querySelectorAll('.btn-add-entry').forEach(btn => {
 });
 
 // Initial load
+initCollapseState();
 if (!_authDone) {
   // First ever visit: show modal, then load data after choice
   fetchAnalyse();
