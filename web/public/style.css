@@ -291,6 +291,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   margin-bottom: 0.5rem;
 }
 
@@ -310,6 +312,80 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   border-radius: 4px;
 }
 .btn-clear-jeu:hover { background: #4a2828; }
+
+/* Cost-per-draw input in history header */
+.cost-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.cost-input {
+  width: 4.5rem;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #e8e8e8;
+  font-size: 0.75rem;
+  text-align: right;
+}
+.cost-input:focus { border-color: #555; outline: none; }
+
+/* Per-game summary bar */
+.history-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.2rem;
+  padding: 0.45rem 0.5rem;
+  background: #161622;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.summary-item {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  color: #aaa;
+}
+
+.summary-key {
+  color: #555;
+  font-size: 0.7rem;
+}
+
+.summary-net-pos { color: #7ddb7d; font-weight: 700; }
+.summary-net-neg { color: #ff9090; font-weight: 700; }
+
+/* Global summary */
+.global-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: center;
+  background: #1a1a2e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.8rem;
+}
+
+.global-summary.hidden { display: none; }
+
+.summary-global-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #f5c518;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
 
 .history-row {
   padding: 0.6rem 0.5rem;
@@ -392,18 +468,56 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   transform: scale(1.08);
 }
 
-/* Gain line */
-.history-gain-line {
+/* Finance line per history row (coût / gain / net) */
+.history-fin-line {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
 }
 
-.history-gain-label {
+.fin-field {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.fin-label {
+  font-size: 0.7rem;
+  color: #555;
+  white-space: nowrap;
+}
+
+.fin-input {
+  width: 5rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 5px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #e8e8e8;
+  font-size: 0.78rem;
+  text-align: right;
+}
+.fin-input:focus { border-color: #555; outline: none; }
+
+.fin-net {
+  font-size: 0.78rem;
+}
+.fin-net-pos { color: #7ddb7d; font-weight: 700; }
+.fin-net-neg { color: #ff9090; font-weight: 700; }
+
+.btn-fin-save {
+  padding: 0.2rem 0.6rem;
+  background: #1a3a1a;
+  color: #7ddb7d;
   font-size: 0.72rem;
-  color: #666;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: background 0.15s;
 }
+.btn-fin-save:hover { background: #234a23; }
 
+/* Shared input style for manual form cost/gain fields */
 .history-gain-input {
   width: 5rem;
   padding: 0.2rem 0.4rem;
@@ -414,17 +528,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 0.78rem;
   text-align: right;
 }
-
-.btn-gain-save {
-  padding: 0.2rem 0.6rem;
-  background: #1a3a1a;
-  color: #7ddb7d;
-  font-size: 0.72rem;
-  font-weight: 600;
-  border-radius: 4px;
-  transition: background 0.15s;
-}
-.btn-gain-save:hover { background: #234a23; }
 
 .btn-history-more {
   display: block;

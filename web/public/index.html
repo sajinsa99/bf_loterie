@@ -43,8 +43,13 @@
           <div class="history-jeu hidden" id="history-loto">
             <div class="history-jeu-header">
               <span class="history-jeu-title">Historique</span>
+              <label class="cost-label">
+                Coût / tirage
+                <input type="number" class="cost-input" id="cost-loto" min="0" step="0.10" value="2.20"> €
+              </label>
               <button type="button" class="btn-clear-jeu" data-jeu="loto">Tout effacer</button>
             </div>
+            <div class="history-summary" id="summary-loto"></div>
             <div class="history-jeu-list" id="history-list-loto"></div>
           </div>
         </div>
@@ -66,13 +71,20 @@
           <div class="history-jeu hidden" id="history-euromillions">
             <div class="history-jeu-header">
               <span class="history-jeu-title">Historique</span>
+              <label class="cost-label">
+                Coût / tirage
+                <input type="number" class="cost-input" id="cost-euromillions" min="0" step="0.50" value="2.50"> €
+              </label>
               <button type="button" class="btn-clear-jeu" data-jeu="euromillions">Tout effacer</button>
             </div>
+            <div class="history-summary" id="summary-euromillions"></div>
             <div class="history-jeu-list" id="history-list-euromillions"></div>
           </div>
         </div>
       </section>
     </main>
+
+    <div id="global-summary" class="global-summary hidden"></div>
 
     <footer class="help">
       <h2>Aide</h2>

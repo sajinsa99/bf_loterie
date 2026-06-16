@@ -13,9 +13,100 @@ const historyPanels = {
   loto: document.getElementById('history-loto'),
   euromillions: document.getElementById('history-euromillions'),
 };
+const costInputs = {
+  loto: document.getElementById('cost-loto'),
+  euromillions: document.getElementById('cost-euromillions'),
+};
+const summaryCells = {
+  loto: document.getElementById('summary-loto'),
+  euromillions: document.getElementById('summary-euromillions'),
+};
+const globalSummaryEl = document.getElementById('global-summary');
 
 // Current draws per game, used by the "Jouer" buttons
 const currentDraws = { loto: null, euromillions: null };
+
+// --- Cost per draw (persisted) ---
+const COST_DEFAULTS = { loto: 2.20, euromillions: 2.50 };
+
+function getCost(jeu) {
+  const stored = localStorage.getItem(`bf_cost_${jeu}`);
+  return stored !== null ? parseFloat(stored) : COST_DEFAULTS[jeu];
+}
+
+function saveCost(jeu, val) {
+  localStorage.setItem(`bf_cost_${jeu}`, String(val));
+}
+
+function initCostInputs() {
+  for (const jeu of ['loto', 'euromillions']) {
+    const inp = costInputs[jeu];
+    if (!inp) continue;
+    inp.value = getCost(jeu);
+    inp.addEventListener('change', () => {
+      const v = parseFloat(inp.value);
+      if (Number.isFinite(v) && v >= 0) {
+        saveCost(jeu, v);
+        renderHistory();
+      }
+    });
+  }
+}
+
+// --- Summaries ---
+
+function fmt(n) {
+  return n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function renderSummaries(entries) {
+  const totals = { loto: { draws: 0, gains: 0, cost: 0 }, euromillions: { draws: 0, gains: 0, cost: 0 } };
+
+  for (const e of entries) {
+    const jeu = e.jeu;
+    if (!totals[jeu]) continue;
+    if (entryIsFuture(e)) continue;
+    totals[jeu].draws++;
+    totals[jeu].gains += (e.gain || 0);
+    // use the cost stored on the entry; fall back to the current input value
+    totals[jeu].cost += (e.cost != null ? e.cost : getCost(jeu));
+  }
+
+  let globalDraws = 0, globalGains = 0, globalCost = 0;
+
+  for (const jeu of ['loto', 'euromillions']) {
+    const el = summaryCells[jeu];
+    if (!el) continue;
+    const { draws, gains, cost: totalCost } = totals[jeu];
+    const net = gains - totalCost;
+    const netClass = net >= 0 ? 'summary-net-pos' : 'summary-net-neg';
+
+    el.innerHTML = `
+      <span class="summary-item"><span class="summary-key">Tirages :</span> ${draws}</span>
+      <span class="summary-item"><span class="summary-key">Coût total :</span> ${fmt(totalCost)} €</span>
+      <span class="summary-item"><span class="summary-key">Gains :</span> ${fmt(gains)} €</span>
+      <span class="summary-item ${netClass}"><span class="summary-key">Net :</span> ${net >= 0 ? '+' : ''}${fmt(net)} €</span>
+    `;
+
+    globalDraws += draws;
+    globalGains += gains;
+    globalCost  += totalCost;
+  }
+
+  const globalNet = globalGains - globalCost;
+  const globalNetClass = globalNet >= 0 ? 'summary-net-pos' : 'summary-net-neg';
+  const hasHistory = globalDraws > 0;
+  globalSummaryEl.classList.toggle('hidden', !hasHistory);
+  if (hasHistory) {
+    globalSummaryEl.innerHTML = `
+      <span class="summary-global-title">Total tous jeux</span>
+      <span class="summary-item"><span class="summary-key">Tirages :</span> ${globalDraws}</span>
+      <span class="summary-item"><span class="summary-key">Coût total :</span> ${fmt(globalCost)} €</span>
+      <span class="summary-item"><span class="summary-key">Gains :</span> ${fmt(globalGains)} €</span>
+      <span class="summary-item ${globalNetClass}"><span class="summary-key">Net :</span> ${globalNet >= 0 ? '+' : ''}${fmt(globalNet)} €</span>
+    `;
+  }
+}
 
 // --- Collapse/expand sections ---
 // Loto: lundi=1, mercredi=3, samedi=6 / Euromillions: mardi=2, vendredi=5
@@ -217,6 +308,7 @@ async function addToHistory(jeu, draws, gameFormat) {
       fixed: draws.fixed || null,
       random: draws.random || null,
     },
+    cost: getCost(jeu),
     // legacy text for fallback display
     text: formatBalls(draws.random || draws.fixed, gameFormat),
   };
@@ -276,6 +368,8 @@ function entryIsFuture(entry) {
 
 async function renderHistory() {
   const entries = await loadHistory();
+
+  renderSummaries(entries);
 
   for (const jeu of ['loto', 'euromillions']) {
     const list = historyLists[jeu];
@@ -399,42 +493,75 @@ async function renderHistory() {
         row.appendChild(balls);
       }
 
-      // Gain
-      const gainLine = document.createElement('div');
-      gainLine.className = 'history-gain-line';
+      // Finance block: coût / gain / net (all editable)
+      const finLine = document.createElement('div');
+      finLine.className = 'history-fin-line';
 
-      const gainLabel = document.createElement('label');
-      gainLabel.className = 'history-gain-label';
-      gainLabel.textContent = 'Gain :';
+      function makeFinField(labelTxt, value, cls) {
+        const wrap = document.createElement('span');
+        wrap.className = `fin-field ${cls || ''}`;
+        const lbl = document.createElement('span');
+        lbl.className = 'fin-label';
+        lbl.textContent = labelTxt;
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.min = '0';
+        inp.step = '0.01';
+        inp.className = 'fin-input';
+        inp.value = value != null ? value : 0;
+        wrap.appendChild(lbl);
+        wrap.appendChild(inp);
+        return { wrap, inp };
+      }
 
-      const gainInput = document.createElement('input');
-      gainInput.type = 'number';
-      gainInput.min = '0';
-      gainInput.step = '0.01';
-      gainInput.className = 'history-gain-input';
-      gainInput.value = entry.gain != null ? entry.gain : 0;
-      if (future) gainInput.disabled = true;
-      if (!isOwner) gainInput.disabled = true;
+      const entryCost = entry.cost != null ? entry.cost : getCost(entry.jeu);
+      const entryGain = entry.gain != null ? entry.gain : 0;
 
-      const gainSave = document.createElement('button');
-      gainSave.className = 'btn-gain-save';
-      gainSave.textContent = '€ Sauvegarder';
+      const costField = makeFinField('Coût :', entryCost);
+      const gainField = makeFinField('Gain :', entryGain);
+
+      // Net display (computed, not editable)
+      const netSpan = document.createElement('span');
+      netSpan.className = 'fin-field fin-net';
+
+      function updateNet() {
+        const c = parseFloat(costField.inp.value) || 0;
+        const g = parseFloat(gainField.inp.value) || 0;
+        const net = g - c;
+        netSpan.innerHTML = `<span class="fin-label">Net :</span><span class="${net >= 0 ? 'fin-net-pos' : 'fin-net-neg'}">${net >= 0 ? '+' : ''}${fmt(net)} €</span>`;
+      }
+
+      updateNet();
+      costField.inp.addEventListener('input', updateNet);
+      gainField.inp.addEventListener('input', updateNet);
+
+      const saveBtn = document.createElement('button');
+      saveBtn.className = 'btn-fin-save';
+      saveBtn.textContent = '€ Sauvegarder';
+
       if (future || !isOwner) {
-        gainSave.disabled = true;
+        costField.inp.disabled = true;
+        gainField.inp.disabled = true;
+        saveBtn.disabled = true;
       } else {
-        gainSave.addEventListener('click', async () => {
-          const val = parseFloat(gainInput.value) || 0;
-          entry.gain = val;
-          await updateHistoryEntry(entry.id, { gain: val });
-          gainSave.textContent = '✓';
-          setTimeout(() => { gainSave.textContent = '€ Sauvegarder'; }, 1200);
+        saveBtn.addEventListener('click', async () => {
+          const cost = parseFloat(costField.inp.value) || 0;
+          const gain = parseFloat(gainField.inp.value) || 0;
+          entry.cost = cost;
+          entry.gain = gain;
+          await updateHistoryEntry(entry.id, { cost, gain });
+          updateNet();
+          renderSummaries(await loadHistory());
+          saveBtn.textContent = '✓';
+          setTimeout(() => { saveBtn.textContent = '€ Sauvegarder'; }, 1200);
         });
       }
 
-      gainLine.appendChild(gainLabel);
-      gainLine.appendChild(gainInput);
-      gainLine.appendChild(gainSave);
-      row.appendChild(gainLine);
+      finLine.appendChild(costField.wrap);
+      finLine.appendChild(gainField.wrap);
+      finLine.appendChild(netSpan);
+      finLine.appendChild(saveBtn);
+      row.appendChild(finLine);
 
       list.appendChild(row);
     }
@@ -753,11 +880,23 @@ function buildManualForm(jeu) {
   wrap.appendChild(fixedDraw.row);
   wrap.appendChild(randomDraw.row);
 
-  // Gain
+  // Gain + Coût
   const gainRow = document.createElement('div');
   gainRow.className = 'manual-form-row';
+
+  const costLbl = document.createElement('label');
+  costLbl.className = 'manual-form-label';
+  costLbl.textContent = 'Coût (€)';
+  const costInp = document.createElement('input');
+  costInp.type = 'number';
+  costInp.min = '0';
+  costInp.step = '0.01';
+  costInp.value = getCost(jeu);
+  costInp.className = 'history-gain-input';
+
   const gainLabel = document.createElement('label');
   gainLabel.className = 'manual-form-label';
+  gainLabel.style.marginLeft = '1rem';
   gainLabel.textContent = 'Gain (€)';
   const gainInput = document.createElement('input');
   gainInput.type = 'number';
@@ -765,6 +904,9 @@ function buildManualForm(jeu) {
   gainInput.step = '0.01';
   gainInput.value = '0';
   gainInput.className = 'history-gain-input';
+
+  gainRow.appendChild(costLbl);
+  gainRow.appendChild(costInp);
   gainRow.appendChild(gainLabel);
   gainRow.appendChild(gainInput);
   wrap.appendChild(gainRow);
@@ -851,6 +993,7 @@ function buildManualForm(jeu) {
       gameFormat: cfg.gameFormat,
       draws,
       text: formatBalls(refDraw, cfg.gameFormat),
+      cost: parseFloat(costInp.value) || 0,
       gain: parseFloat(gainInput.value) || 0,
     };
 
@@ -885,6 +1028,7 @@ document.querySelectorAll('.btn-add-entry').forEach(btn => {
 
 // Initial load
 initCollapseState();
+initCostInputs();
 if (!_authDone) {
   // First ever visit: show modal, then load data after choice
   fetchAnalyse();
