@@ -618,6 +618,11 @@ main { display: flex; flex-direction: column; gap: 2rem; }
   margin-left: 0.6rem;
 }
 
+.jeu-days [data-day].today {
+  font-weight: 700;
+  color: inherit;
+}
+
 /* Draw cards */
 .draws {
   display: flex;

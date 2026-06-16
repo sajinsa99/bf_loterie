@@ -124,7 +124,15 @@ function setJeuCollapsed(jeu, collapsed) {
   if (arrow) arrow.setAttribute('aria-expanded', String(!collapsed));
 }
 
+function highlightTodayDrawDay() {
+  const today = new Date().getDay();
+  document.querySelectorAll('.jeu-days [data-day]').forEach(el => {
+    el.classList.toggle('today', Number(el.dataset.day) === today);
+  });
+}
+
 function initCollapseState() {
+  highlightTodayDrawDay();
   for (const jeu of ['loto', 'euromillions']) {
     setJeuCollapsed(jeu, !isTodayDrawDay(jeu));
     const heading = document.querySelector(`#section-${jeu} .jeu-heading`);
