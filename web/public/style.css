@@ -620,7 +620,7 @@ main { display: flex; flex-direction: column; gap: 2rem; }
 
 .jeu-days [data-day].today {
   font-weight: 700;
-  color: inherit;
+  color: #ffd740;
 }
 
 /* Draw cards */
