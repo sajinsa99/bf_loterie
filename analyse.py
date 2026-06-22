@@ -2,6 +2,8 @@ import subprocess
 import sys
 import csv
 import json
+import math
+import heapq
 import random
 import argparse
 from collections import Counter
@@ -61,22 +63,19 @@ def csv_game_format(path: Path) -> str:
 
 
 def weighted_sample(counter: Counter, k: int, power: float = 1.0) -> list[int]:
-    """Tirage pondéré sans remise basé sur les fréquences (power > 1 renforce les favoris)."""
-    population = list(counter.keys())
-    weights = [counter[n] ** power for n in population]
-    selected = []
-    for _ in range(k):
-        total = sum(weights)
-        r = random.uniform(0, total)
-        cumsum = 0
-        for i, w in enumerate(weights):
-            cumsum += w
-            if cumsum >= r:
-                selected.append(population[i])
-                population.pop(i)
-                weights.pop(i)
-                break
-    return sorted(selected)
+    """Tirage pondéré sans remise (Efraimidis–Spirakis, O(n log k))."""
+    heap: list[tuple[float, int]] = []
+    for n, c in counter.items():
+        w = c ** power if power != 1.0 else c
+        if w <= 0:
+            continue
+        # clé = log(U)/w (équivalent monotone à U^(1/w), stable numériquement)
+        key = math.log(random.random()) / w
+        if len(heap) < k:
+            heapq.heappush(heap, (key, n))
+        elif key > heap[0][0]:
+            heapq.heapreplace(heap, (key, n))
+    return sorted(n for _, n in heap)
 
 
 def print_table(title: str, items: list, col1: str, col1_width: int) -> None:
