@@ -70,7 +70,8 @@ def weighted_sample(counter: Counter, k: int, power: float = 1.0) -> list[int]:
         if w <= 0:
             continue
         # clé = log(U)/w (équivalent monotone à U^(1/w), stable numériquement)
-        key = math.log(random.random()) / w
+        # 1.0 - random.random() ∈ (0.0, 1.0] → log toujours défini (évite log(0))
+        key = math.log(1.0 - random.random()) / w
         if len(heap) < k:
             heapq.heappush(heap, (key, n))
         elif key > heap[0][0]:
