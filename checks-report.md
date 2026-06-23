@@ -1,4 +1,4 @@
-# Checks Report — bf_loterie — 2026-06-23 14:25:26
+# Checks Report — bf_loterie — 2026-06-23 14:28:02
 
 ## Summary
 
@@ -9,14 +9,14 @@
 | jsonlint  web/package.json | ✅ PASS |
 | hadolint  (tmp/Dockerfile not found) | ⏭ SKIP |
 | markdownlint-cli2  (tmp/README.md not found) | ⏭ SKIP |
-| eslint  web/server.js  web/public/app.js | ❌ FAIL |
+| eslint  web/server.js  web/public/app.js | ✅ PASS |
 | yamllint  (no *.yaml / *.yml files found) | ⏭ SKIP |
 | semgrep  analyse.py + download.py + JS sources | ✅ PASS |
 | checkov  (tmp/Dockerfile not found) | ⏭ SKIP |
 | trivy  HIGH/CRITICAL CVEs | ✅ PASS |
 | gitleaks  secrets in repo | ✅ PASS |
 | detect-secrets  (run: detect-secrets scan > .secrets.baseline  to create baseline) | ⏭ SKIP |
-| **Total** | PASS: 6 · FAIL: 1 · SKIP: 5 |
+| **Total** | PASS: 7 · FAIL: 0 · SKIP: 5 |
 
 ---
 
@@ -143,15 +143,9 @@ _no output_
 
 ### `eslint  web/server.js  web/public/app.js`
 
-**Status:** ❌ FAIL (exit 1)
+**Status:** ✅ PASS
 
-```
-
-/work/web/public/app.js
-  866:52  error  '_jeu' is defined but never used  no-unused-vars
-
-✖ 1 problem (1 error, 0 warnings)
-```
+_no output_
 
 ---
 
@@ -220,14 +214,14 @@ See https://semgrep.dev/docs/reporting-false-negatives/
 **Status:** ✅ PASS
 
 ```
-2026-06-23T12:25:19Z	INFO	[vulndb] Need to update DB
-2026-06-23T12:25:19Z	INFO	[vulndb] Downloading vulnerability DB...
-2026-06-23T12:25:19Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
-26.69 MiB / 96.98 MiB [---------------->____________________________________________] 27.53% ? p/s ?68.31 MiB / 96.98 MiB [------------------------------------------>__________________] 70.44% ? p/s ?96.98 MiB / 96.98 MiB [----------------------------------------------------------->] 100.00% ? p/s ?96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 117.11 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 117.11 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 117.11 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 109.56 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 109.56 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 109.56 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 102.49 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 102.49 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 102.49 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 95.88 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 95.88 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 95.88 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 89.69 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 89.69 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 89.69 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [-------------------------------------------------] 100.00% 27.30 MiB p/s 3.8s2026-06-23T12:25:23Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
-2026-06-23T12:25:23Z	INFO	[vuln] Vulnerability scanning is enabled
-2026-06-23T12:25:23Z	INFO	Suppressing dependencies for development and testing. To display them, try the '--include-dev-deps' flag.
-2026-06-23T12:25:23Z	INFO	Number of language-specific files	num=1
-2026-06-23T12:25:23Z	INFO	[npm] Detecting vulnerabilities...
+2026-06-23T12:27:56Z	INFO	[vulndb] Need to update DB
+2026-06-23T12:27:56Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-06-23T12:27:56Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+30.90 MiB / 96.98 MiB [------------------->_________________________________________] 31.87% ? p/s ?73.72 MiB / 96.98 MiB [---------------------------------------------->______________] 76.01% ? p/s ?96.98 MiB / 96.98 MiB [----------------------------------------------------------->] 100.00% ? p/s ?96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.12 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.12 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.12 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.37 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.37 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.37 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.15 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.15 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.15 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [-------------------------------------------------] 100.00% 27.49 MiB p/s 3.7s2026-06-23T12:28:00Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-06-23T12:28:00Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-06-23T12:28:00Z	INFO	Suppressing dependencies for development and testing. To display them, try the '--include-dev-deps' flag.
+2026-06-23T12:28:00Z	INFO	Number of language-specific files	num=1
+2026-06-23T12:28:00Z	INFO	[npm] Detecting vulnerabilities...
 
 Report Summary
 
@@ -257,9 +251,9 @@ Legend:
     ○ ░
     ░    gitleaks
 
-[90m12:25PM[0m [32mINF[0m [1m63 commits scanned.[0m
-[90m12:25PM[0m [32mINF[0m [1mscanned ~181481 bytes (181.48 KB) in 256ms[0m
-[90m12:25PM[0m [32mINF[0m [1mno leaks found[0m
+[90m12:28PM[0m [32mINF[0m [1m65 commits scanned.[0m
+[90m12:28PM[0m [32mINF[0m [1mscanned ~184639 bytes (184.64 KB) in 252ms[0m
+[90m12:28PM[0m [32mINF[0m [1mno leaks found[0m
 ```
 
 ---
