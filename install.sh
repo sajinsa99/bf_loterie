@@ -30,13 +30,13 @@ fi
 echo "==> Copying bf_loterie to $LOTERIE_DIR..."
 mkdir -p "$LOTERIE_DIR"
 rsync -a --exclude='.git' --exclude='__pycache__' --exclude='web' \
-  "$SCRIPT_DIR/../" "$LOTERIE_DIR/"
+  "$SCRIPT_DIR/" "$LOTERIE_DIR/"
 chown -R www-data:www-data "$LOTERIE_DIR"
 
 echo "==> Copying web to $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
 rsync -a --exclude='.git' --exclude='node_modules' --exclude='.env' \
-  "$SCRIPT_DIR/" "$INSTALL_DIR/"
+  "$SCRIPT_DIR/web/" "$INSTALL_DIR/"
 
 # .env : ne jamais écraser ; créer depuis .env.example si absent
 ENV_FILE="$INSTALL_DIR/.env"
