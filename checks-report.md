@@ -1,4 +1,4 @@
-# Checks Report — bf_loterie — 2026-06-23 14:14:09
+# Checks Report — bf_loterie — 2026-06-23 14:16:30
 
 ## Summary
 
@@ -10,13 +10,13 @@
 | hadolint  (tmp/Dockerfile not found) | ⏭ SKIP |
 | markdownlint-cli2  (tmp/README.md not found) | ⏭ SKIP |
 | eslint  web/server.js  web/public/app.js | ❌ FAIL |
-| yamllint  (no *.yaml / *.yml files found) | ⏭ SKIP |
+| yamllint  YAML files | ❌ FAIL |
 | semgrep  analyse.py + download.py + JS sources | ✅ PASS |
 | checkov  (tmp/Dockerfile not found) | ⏭ SKIP |
 | trivy  HIGH/CRITICAL CVEs | ✅ PASS |
 | gitleaks  secrets in repo | ✅ PASS |
 | detect-secrets  (run: detect-secrets scan > .secrets.baseline  to create baseline) | ⏭ SKIP |
-| **Total** | PASS: 6 · FAIL: 1 · SKIP: 5 |
+| **Total** | PASS: 6 · FAIL: 2 · SKIP: 4 |
 
 ---
 
@@ -143,32 +143,261 @@ _no output_
 
 ### `eslint  web/server.js  web/public/app.js`
 
-**Status:** ❌ FAIL (exit 2)
+**Status:** ❌ FAIL (exit 1)
 
 ```
 
-Oops! Something went wrong! :(
+/work/web/public/app.js
+  334:14  error  'y' is assigned a value but never used  no-unused-vars
+  866:52  error  'jeu' is defined but never used         no-unused-vars
 
-ESLint: 9.29.0
-
-Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@eslint/js' imported from /work/web/eslint.config.js
-    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
-    at packageResolve (node:internal/modules/esm/resolve:768:81)
-    at moduleResolve (node:internal/modules/esm/resolve:855:18)
-    at defaultResolve (node:internal/modules/esm/resolve:985:11)
-    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
-    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
-    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
-    at ModuleJob._link (node:internal/modules/esm/module_job:182:49)
+✖ 2 problems (2 errors, 0 warnings)
 ```
 
 ---
 
 ## YAML
 
-### `yamllint  (no *.yaml / *.yml files found)`
+### `yamllint  YAML files`
 
-**Status:** ⏭ SKIP
+**Status:** ❌ FAIL (exit 1)
+
+```
+./web/node_modules/side-channel/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/qs/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/side-channel-map/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/call-bind-apply-helpers/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/es-errors/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/es-define-property/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/debug/.coveralls.yml
+  1:1       warning  missing document start "---"  (document-start)
+
+./web/node_modules/debug/.travis.yml
+  1:1       error    too many blank lines (1 > 0)  (empty-lines)
+  2:1       warning  missing document start "---"  (document-start)
+
+./web/node_modules/has-symbols/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/side-channel-list/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/call-bound/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/side-channel-weakmap/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/get-intrinsic/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/gopd/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/es-object-atoms/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/function-bind/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/dunder-proto/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/object-inspect/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/hasown/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/get-proto/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+
+./web/node_modules/math-intrinsics/.github/FUNDING.yml
+  3:1       warning  missing document start "---"  (document-start)
+  4:10      warning  too few spaces before comment: expected 2  (comments)
+  5:18      warning  too few spaces before comment: expected 2  (comments)
+  6:8       warning  too few spaces before comment: expected 2  (comments)
+  8:19      warning  too few spaces before comment: expected 2  (comments)
+  8:81      error    line too long (91 > 80 characters)  (line-length)
+  9:12      warning  too few spaces before comment: expected 2  (comments)
+  10:12     warning  too few spaces before comment: expected 2  (comments)
+  11:10     warning  too few spaces before comment: expected 2  (comments)
+  12:9      warning  too few spaces before comment: expected 2  (comments)
+```
 
 ---
 
@@ -229,21 +458,22 @@ See https://semgrep.dev/docs/reporting-false-negatives/
 **Status:** ✅ PASS
 
 ```
-2026-06-23T12:14:02Z	INFO	[vulndb] Need to update DB
-2026-06-23T12:14:02Z	INFO	[vulndb] Downloading vulnerability DB...
-2026-06-23T12:14:02Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
-30.88 MiB / 96.98 MiB [------------------->_________________________________________] 31.84% ? p/s ?72.73 MiB / 96.98 MiB [--------------------------------------------->_______________] 75.00% ? p/s ?96.98 MiB / 96.98 MiB [----------------------------------------------------------->] 100.00% ? p/s ?96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.13 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.13 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.13 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.38 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.38 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.38 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.16 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.16 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.16 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [-------------------------------------------------] 100.00% 27.44 MiB p/s 3.7s2026-06-23T12:14:06Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
-2026-06-23T12:14:06Z	INFO	[vuln] Vulnerability scanning is enabled
-2026-06-23T12:14:06Z	INFO	Number of language-specific files	num=0
-2026-06-23T12:14:06Z	WARN	[report] Supported files for scanner(s) not found.	scanners=[vuln]
+2026-06-23T12:16:24Z	INFO	[vulndb] Need to update DB
+2026-06-23T12:16:24Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-06-23T12:16:24Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+32.64 MiB / 96.98 MiB [-------------------->________________________________________] 33.66% ? p/s ?77.34 MiB / 96.98 MiB [------------------------------------------------>____________] 79.76% ? p/s ?96.98 MiB / 96.98 MiB [----------------------------------------------------------->] 100.00% ? p/s ?96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 107.12 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 107.12 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 107.12 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 100.21 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 100.21 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 100.21 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 93.75 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 93.75 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 93.75 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 87.70 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 87.70 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 87.70 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 82.04 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 82.04 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 82.04 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [-------------------------------------------------] 100.00% 27.78 MiB p/s 3.7s2026-06-23T12:16:28Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-06-23T12:16:28Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-06-23T12:16:28Z	INFO	Suppressing dependencies for development and testing. To display them, try the '--include-dev-deps' flag.
+2026-06-23T12:16:28Z	INFO	Number of language-specific files	num=1
+2026-06-23T12:16:28Z	INFO	[npm] Detecting vulnerabilities...
 
 Report Summary
 
-┌────────┬──────┬─────────────────┐
-│ Target │ Type │ Vulnerabilities │
-├────────┼──────┼─────────────────┤
-│   -    │  -   │        -        │
-└────────┴──────┴─────────────────┘
+┌───────────────────────┬──────┬─────────────────┐
+│        Target         │ Type │ Vulnerabilities │
+├───────────────────────┼──────┼─────────────────┤
+│ web/package-lock.json │ npm  │        0        │
+└───────────────────────┴──────┴─────────────────┘
 Legend:
 - '-': Not scanned
 - '0': Clean (no security findings detected)
@@ -265,9 +495,9 @@ Legend:
     ○ ░
     ░    gitleaks
 
-[90m12:14PM[0m [32mINF[0m [1m58 commits scanned.[0m
-[90m12:14PM[0m [32mINF[0m [1mscanned ~159194 bytes (159.19 KB) in 253ms[0m
-[90m12:14PM[0m [32mINF[0m [1mno leaks found[0m
+[90m12:16PM[0m [32mINF[0m [1m60 commits scanned.[0m
+[90m12:16PM[0m [32mINF[0m [1mscanned ~162099 bytes (162.10 KB) in 288ms[0m
+[90m12:16PM[0m [32mINF[0m [1mno leaks found[0m
 ```
 
 ---
