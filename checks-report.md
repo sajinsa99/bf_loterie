@@ -1,4 +1,4 @@
-# Checks Report — bf_loterie — 2026-06-23 14:10:04
+# Checks Report — bf_loterie — 2026-06-23 14:14:09
 
 ## Summary
 
@@ -106,12 +106,17 @@ _no output_
   "name": "bf_loterie_web",
   "version": "1.0.0",
   "description": "Web UI for bf_loterie analyse.py",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "globals": "^15.0.0"
   }
 }
 ```
@@ -155,10 +160,6 @@ Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@eslint/js' imported from /wo
     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
     at ModuleJob._link (node:internal/modules/esm/module_job:182:49)
-(node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///work/web/eslint.config.js?mtime=1781428805557 is not specified and it doesn't parse as CommonJS.
-Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
-To eliminate this warning, add "type": "module" to /work/web/package.json.
-(Use `node --trace-warnings ...` to show where the warning was created)
 ```
 
 ---
@@ -228,13 +229,13 @@ See https://semgrep.dev/docs/reporting-false-negatives/
 **Status:** ✅ PASS
 
 ```
-2026-06-23T12:09:57Z	INFO	[vulndb] Need to update DB
-2026-06-23T12:09:57Z	INFO	[vulndb] Downloading vulnerability DB...
-2026-06-23T12:09:57Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
-30.55 MiB / 96.98 MiB [------------------->_________________________________________] 31.50% ? p/s ?72.46 MiB / 96.98 MiB [--------------------------------------------->_______________] 74.72% ? p/s ?96.98 MiB / 96.98 MiB [----------------------------------------------------------->] 100.00% ? p/s ?96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.65 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.65 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.65 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.51 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.51 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.51 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.84 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.84 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.84 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.59 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.59 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.59 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.74 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.74 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.74 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 79.28 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 79.28 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [-------------------------------------------------] 100.00% 25.11 MiB p/s 4.1s2026-06-23T12:10:01Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
-2026-06-23T12:10:01Z	INFO	[vuln] Vulnerability scanning is enabled
-2026-06-23T12:10:01Z	INFO	Number of language-specific files	num=0
-2026-06-23T12:10:01Z	WARN	[report] Supported files for scanner(s) not found.	scanners=[vuln]
+2026-06-23T12:14:02Z	INFO	[vulndb] Need to update DB
+2026-06-23T12:14:02Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-06-23T12:14:02Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+30.88 MiB / 96.98 MiB [------------------->_________________________________________] 31.84% ? p/s ?72.73 MiB / 96.98 MiB [--------------------------------------------->_______________] 75.00% ? p/s ?96.98 MiB / 96.98 MiB [----------------------------------------------------------->] 100.00% ? p/s ?96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.13 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.13 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.13 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.02 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.38 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.38 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.38 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.16 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.16 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.16 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.34 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [-------------------------------------------------] 100.00% 27.44 MiB p/s 3.7s2026-06-23T12:14:06Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-06-23T12:14:06Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-06-23T12:14:06Z	INFO	Number of language-specific files	num=0
+2026-06-23T12:14:06Z	WARN	[report] Supported files for scanner(s) not found.	scanners=[vuln]
 
 Report Summary
 
@@ -264,9 +265,9 @@ Legend:
     ○ ░
     ░    gitleaks
 
-[90m12:10PM[0m [32mINF[0m [1m56 commits scanned.[0m
-[90m12:10PM[0m [32mINF[0m [1mscanned ~154075 bytes (154.07 KB) in 316ms[0m
-[90m12:10PM[0m [32mINF[0m [1mno leaks found[0m
+[90m12:14PM[0m [32mINF[0m [1m58 commits scanned.[0m
+[90m12:14PM[0m [32mINF[0m [1mscanned ~159194 bytes (159.19 KB) in 253ms[0m
+[90m12:14PM[0m [32mINF[0m [1mno leaks found[0m
 ```
 
 ---
