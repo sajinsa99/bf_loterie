@@ -142,7 +142,7 @@ fi
 section "JavaScript"
 if [[ -f eslint.config.js || -f web/eslint.config.js || -f .eslintrc.json ]]; then
   step "eslint  web/server.js  web/public/app.js" \
-    "${DOCKER_RUN[@]}" bash -c 'cd web && eslint --fix server.js public/app.js'
+    "${DOCKER_RUN[@]}" bash -c 'cd web && npm install --silent && eslint --fix server.js public/app.js'
 else
   skip "eslint  (no eslint.config.js found — create one to enable)"
 fi
