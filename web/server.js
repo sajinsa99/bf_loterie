@@ -69,22 +69,18 @@ function runAnalyse(args, res) {
   });
 }
 
-// Full analysis: top-N numbers + draws
+function parseTopArg(query)  { const v = parseInt(query.top, 10);   return Number.isInteger(v) && v > 0  ? String(v) : '10'; }
+function parsePowerArg(query){ const v = parseFloat(query.power);   return Number.isFinite(v) && v > 0  ? String(v) : '1.0'; }
+function parseCountArg(query){ const v = parseInt(query.count, 10); return Number.isInteger(v) && v >= 1 && v <= 50 ? String(v) : '1'; }
+
+// Full analysis: top-N numbers + pairs + draws
 app.get('/api/analyse', (req, res) => {
-  const top = parseInt(req.query.top, 10);
-  const topArg = Number.isInteger(top) && top > 0 ? String(top) : '10';
-  const power = parseFloat(req.query.power);
-  const powerArg = Number.isFinite(power) && power > 0 ? String(power) : '1.0';
-  runAnalyse(['--json', '--top', topArg, '--power', powerArg], res);
+  runAnalyse(['--json', '--top', parseTopArg(req.query), '--power', parsePowerArg(req.query), '--count', parseCountArg(req.query)], res);
 });
 
-// New draw only (random re-seed, skip heavy CSV parsing)
+// Fast draw only — uses disk cache, skips CSV re-parse
 app.get('/api/draw', (req, res) => {
-  const top = parseInt(req.query.top, 10);
-  const topArg = Number.isInteger(top) && top > 0 ? String(top) : '10';
-  const power = parseFloat(req.query.power);
-  const powerArg = Number.isFinite(power) && power > 0 ? String(power) : '1.0';
-  runAnalyse(['--json', '--draw-only', '--top', topArg, '--power', powerArg], res);
+  runAnalyse(['--json', '--draw-only', '--top', parseTopArg(req.query), '--power', parsePowerArg(req.query), '--count', parseCountArg(req.query)], res);
 });
 
 // History
