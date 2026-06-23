@@ -331,7 +331,7 @@ function renderLineChart(entries) {
 
   function shortDate(entry) {
     if (entry.dateISO) {
-      const [y, m, d] = entry.dateISO.split('-');
+      const [, m, d] = entry.dateISO.split('-');
       return `${d}/${m}`;
     }
     const match = (entry.date || '').match(/(\d{2})\/(\d{2})/);
@@ -863,7 +863,7 @@ function renderBall(n, cls) {
   return el;
 }
 
-function renderDraws(container, draws, gameFormat, jeu) {
+function renderDraws(container, draws, gameFormat, _jeu) {
   container.innerHTML = '';
   const entries = [
     { key: 'fixed', label: 'Fixe (déterministe)' },

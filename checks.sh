@@ -148,7 +148,7 @@ else
 fi
 
 section "YAML"
-mapfile -t yaml_files < <(find . -path './.git' -prune -o \( -name '*.yaml' -o -name '*.yml' \) -print)
+mapfile -t yaml_files < <(find . -path './.git' -prune -o -path './web/node_modules' -prune -o \( -name '*.yaml' -o -name '*.yml' \) -print)
 if [[ ${#yaml_files[@]} -gt 0 ]]; then
   step "yamllint  YAML files" \
     "${DOCKER_RUN[@]}" yamllint "${yaml_files[@]}"
