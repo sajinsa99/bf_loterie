@@ -1,10 +1,12 @@
-'use strict';
+import { execFile } from 'child_process';
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
+import express from 'express';
+import { fileURLToPath } from 'url';
 
-const { execFile } = require('child_process');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const express = require('express');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let ownerToken = null;
 
