@@ -1,3 +1,5 @@
 downloads/
 web/.env
+web/package-lock.json
+web/node_modules/
 tmp/
