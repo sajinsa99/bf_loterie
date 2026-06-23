@@ -1,4 +1,4 @@
-# Checks Report — bf_loterie — 2026-06-14 11:14:32
+# Checks Report — bf_loterie — 2026-06-23 14:10:04
 
 ## Summary
 
@@ -7,16 +7,16 @@
 | shellcheck  web/install.sh | ✅ PASS |
 | jsonlint  urls.json | ✅ PASS |
 | jsonlint  web/package.json | ✅ PASS |
-| hadolint  tmp/Dockerfile | ❌ FAIL |
-| markdownlint-cli2  tmp/README.md | ✅ PASS |
-| eslint  (no eslint.config.js found — create one to enable) | ⏭ SKIP |
+| hadolint  (tmp/Dockerfile not found) | ⏭ SKIP |
+| markdownlint-cli2  (tmp/README.md not found) | ⏭ SKIP |
+| eslint  web/server.js  web/public/app.js | ❌ FAIL |
 | yamllint  (no *.yaml / *.yml files found) | ⏭ SKIP |
-| semgrep  analyse.py + download.py + JS sources | ❌ FAIL |
-| checkov  tmp/Dockerfile | ✅ PASS |
+| semgrep  analyse.py + download.py + JS sources | ✅ PASS |
+| checkov  (tmp/Dockerfile not found) | ⏭ SKIP |
 | trivy  HIGH/CRITICAL CVEs | ✅ PASS |
 | gitleaks  secrets in repo | ✅ PASS |
 | detect-secrets  (run: detect-secrets scan > .secrets.baseline  to create baseline) | ⏭ SKIP |
-| **Total** | PASS: 7 · FAIL: 2 · SKIP: 3 |
+| **Total** | PASS: 6 · FAIL: 1 · SKIP: 5 |
 
 ---
 
@@ -120,41 +120,46 @@ _no output_
 
 ## Dockerfile
 
-### `hadolint  tmp/Dockerfile`
+### `hadolint  (tmp/Dockerfile not found)`
 
-**Status:** ❌ FAIL (exit 1)
-
-```
-hadolint: tmp/Dockerfile: withBinaryFile: does not exist (No such file or directory)
-HasCallStack backtrace:
-  collectBacktraces, called at libraries/ghc-internal/src/GHC/Internal/Exception.hs:169:13 in ghc-internal:GHC.Internal.Exception
-  toExceptionWithBacktrace, called at libraries/ghc-internal/src/GHC/Internal/IO.hs:260:11 in ghc-internal:GHC.Internal.IO
-  throwIO, called at libraries/ghc-internal/src/GHC/Internal/IO/Exception.hs:315:19 in ghc-internal:GHC.Internal.IO.Exception
-  ioException, called at libraries/ghc-internal/src/GHC/Internal/IO/Exception.hs:319:20 in ghc-internal:GHC.Internal.IO.Exception
-```
+**Status:** ⏭ SKIP
 
 ---
 
 ## Markdown
 
-### `markdownlint-cli2  tmp/README.md`
+### `markdownlint-cli2  (tmp/README.md not found)`
 
-**Status:** ✅ PASS
-
-```
-markdownlint-cli2 v0.17.2 (markdownlint v0.37.4)
-Finding: tmp/README.md
-Linting: 0 file(s)
-Summary: 0 error(s)
-```
+**Status:** ⏭ SKIP
 
 ---
 
 ## JavaScript
 
-### `eslint  (no eslint.config.js found — create one to enable)`
+### `eslint  web/server.js  web/public/app.js`
 
-**Status:** ⏭ SKIP
+**Status:** ❌ FAIL (exit 2)
+
+```
+
+Oops! Something went wrong! :(
+
+ESLint: 9.29.0
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@eslint/js' imported from /work/web/eslint.config.js
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:855:18)
+    at defaultResolve (node:internal/modules/esm/resolve:985:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:182:49)
+(node:1) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///work/web/eslint.config.js?mtime=1781428805557 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /work/web/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+```
 
 ---
 
@@ -170,7 +175,7 @@ Summary: 0 error(s)
 
 ### `semgrep  analyse.py + download.py + JS sources`
 
-**Status:** ❌ FAIL (exit 1)
+**Status:** ✅ PASS
 
 ```
                
@@ -192,91 +197,27 @@ Summary: 0 error(s)
 │ Scan Summary │
 └──────────────┘
 ✅ Scan completed successfully.
- • Findings: 2 (2 blocking)
+ • Findings: 0 (0 blocking)
  • Rules run: 442
  • Targets scanned: 4
  • Parsed lines: ~100.0%
  • No ignore information available
-Ran 442 rules on 4 files: 2 findings.
-                   
-                   
-┌─────────────────┐
-│ 2 Code Findings │
-└─────────────────┘
-               
-    download.py
-    ❯❱ python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-          ❰❰ Blocking ❱❱
-          Detected a dynamic value being used with urllib. urllib supports 'file://' schemes, so a dynamic    
-          value controlled by a malicious actor may allow them to read arbitrary files. Audit uses of urllib  
-          calls to ensure user data cannot control the URLs, or consider using the 'requests' library instead.
-          Details: https://sg.run/dKZZ                                                                        
-                                                                                                              
-           30┆ urllib.request.urlretrieve(url, dest)
-                 
-    web/server.js
-     ❱ javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
-          ❰❰ Blocking ❱❱
-          A CSRF middleware was not detected in your express application. Ensure you are either using one such
-          as `csurf` or `csrf` (see rule references) and/or you are properly doing CSRF validation in your    
-          routes with a token or cookies.                                                                     
-          Details: https://sg.run/BxzR                                                                        
-                                                                                                              
-           11┆ const app = express();
+Ran 442 rules on 4 files: 0 findings.
+(need more rules? `semgrep login` for additional free Semgrep Registry rules)
+
+
+A new version of Semgrep is available. See https://semgrep.dev/docs/upgrading
+If Semgrep missed a finding, please send us feedback to let us know!
+See https://semgrep.dev/docs/reporting-false-negatives/
 ```
 
 ---
 
 ## IaC Policy
 
-### `checkov  tmp/Dockerfile`
+### `checkov  (tmp/Dockerfile not found)`
 
-**Status:** ✅ PASS
-
-```
-2026-06-14 09:14:25,751 [MainThread  ] [ERROR]  Failed to invoke function /opt/venv/lib/python3.12/site-packages/checkov/common/runners/runner_registry._parallel_run with (<checkov.dockerfile.runner.Runner object at 0x7f84b96f9b20>, None, None, ['tmp/Dockerfile'], <checkov.runner_filter.RunnerFilter object at 0x7f84b985e600>, True, None)
-Traceback (most recent call last):
-  File "/opt/venv/lib/python3.12/site-packages/checkov/common/parallelizer/parallel_runner.py", line 72, in func_wrapper
-    result = original_func(*item)
-             ^^^^^^^^^^^^^^^^^^^^
-  File "/opt/venv/lib/python3.12/site-packages/checkov/common/runners/runner_registry.py", line 836, in _parallel_run
-    report = runner.run(
-             ^^^^^^^^^^^
-  File "/opt/venv/lib/python3.12/site-packages/checkov/dockerfile/runner.py", line 110, in run
-    self.definitions, self.definitions_raw = get_files_definitions(files_list, filepath_fn)
-                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/venv/lib/python3.12/site-packages/checkov/dockerfile/utils.py", line 54, in get_files_definitions
-    result = parse(file)
-             ^^^^^^^^^^^
-  File "/opt/venv/lib/python3.12/site-packages/checkov/dockerfile/parser.py", line 19, in parse
-    with open(filename) as dockerfile:
-         ^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'tmp/Dockerfile'
-2026-06-14 09:14:25,761 [MainThread  ] [ERROR]  Failed to invoke function /opt/venv/lib/python3.12/site-packages/checkov/secrets/runner._safe_scan with ('tmp/Dockerfile', '')
-Traceback (most recent call last):
-  File "/opt/venv/lib/python3.12/site-packages/checkov/common/parallelizer/parallel_runner.py", line 72, in func_wrapper
-    result = original_func(*item)
-             ^^^^^^^^^^^^^^^^^^^^
-  File "/opt/venv/lib/python3.12/site-packages/checkov/secrets/runner.py", line 424, in _safe_scan
-    file_size = os.path.getsize(full_file_path)
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen genericpath>", line 62, in getsize
-FileNotFoundError: [Errno 2] No such file or directory: 'tmp/Dockerfile'
-2026-06-14 09:14:25,764 [MainThread  ] [ERROR]  Failed to invoke function /opt/venv/lib/python3.12/site-packages/checkov/common/runners/runner_registry._parallel_run with (<checkov.secrets.runner.Runner object at 0x7f84b99d5c70>, None, None, ['tmp/Dockerfile'], <checkov.runner_filter.RunnerFilter object at 0x7f84b985e600>, True, None)
-Traceback (most recent call last):
-  File "/opt/venv/lib/python3.12/site-packages/checkov/common/parallelizer/parallel_runner.py", line 72, in func_wrapper
-    result = original_func(*item)
-             ^^^^^^^^^^^^^^^^^^^^
-  File "/opt/venv/lib/python3.12/site-packages/checkov/common/runners/runner_registry.py", line 836, in _parallel_run
-    report = runner.run(
-             ^^^^^^^^^^^
-  File "/opt/venv/lib/python3.12/site-packages/checkov/secrets/runner.py", line 271, in run
-    self._scan_files(files_to_scan, secrets, self.pbar)
-  File "/opt/venv/lib/python3.12/site-packages/checkov/secrets/runner.py", line 415, in _scan_files
-    for filename, secrets_results in results:
-        ^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: cannot unpack non-iterable NoneType object
-```
+**Status:** ⏭ SKIP
 
 ---
 
@@ -287,13 +228,13 @@ TypeError: cannot unpack non-iterable NoneType object
 **Status:** ✅ PASS
 
 ```
-2026-06-14T09:14:26Z	INFO	[vulndb] Need to update DB
-2026-06-14T09:14:26Z	INFO	[vulndb] Downloading vulnerability DB...
-2026-06-14T09:14:26Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
-32.42 MiB / 96.06 MiB [-------------------->________________________________________] 33.75% ? p/s ?77.25 MiB / 96.06 MiB [------------------------------------------------->___________] 80.42% ? p/s ?96.06 MiB / 96.06 MiB [----------------------------------------------------------->] 100.00% ? p/s ?96.06 MiB / 96.06 MiB [--------------------------------------------->] 100.00% 105.86 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [--------------------------------------------->] 100.00% 105.86 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [--------------------------------------------->] 100.00% 105.86 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 99.03 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 99.03 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 99.03 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 92.64 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 92.64 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 92.64 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 86.66 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 86.66 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 86.66 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 81.07 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 81.07 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [---------------------------------------------->] 100.00% 81.07 MiB p/s ETA 0s96.06 MiB / 96.06 MiB [-------------------------------------------------] 100.00% 27.62 MiB p/s 3.7s2026-06-14T09:14:30Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
-2026-06-14T09:14:30Z	INFO	[vuln] Vulnerability scanning is enabled
-2026-06-14T09:14:30Z	INFO	Number of language-specific files	num=0
-2026-06-14T09:14:30Z	WARN	[report] Supported files for scanner(s) not found.	scanners=[vuln]
+2026-06-23T12:09:57Z	INFO	[vulndb] Need to update DB
+2026-06-23T12:09:57Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-06-23T12:09:57Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+30.55 MiB / 96.98 MiB [------------------->_________________________________________] 31.50% ? p/s ?72.46 MiB / 96.98 MiB [--------------------------------------------->_______________] 74.72% ? p/s ?96.98 MiB / 96.98 MiB [----------------------------------------------------------->] 100.00% ? p/s ?96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.65 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.65 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 110.65 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.51 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.51 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [--------------------------------------------->] 100.00% 103.51 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.84 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.84 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 96.84 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.59 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.59 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 90.59 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.74 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.74 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 84.74 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 79.28 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [---------------------------------------------->] 100.00% 79.28 MiB p/s ETA 0s96.98 MiB / 96.98 MiB [-------------------------------------------------] 100.00% 25.11 MiB p/s 4.1s2026-06-23T12:10:01Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-06-23T12:10:01Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-06-23T12:10:01Z	INFO	Number of language-specific files	num=0
+2026-06-23T12:10:01Z	WARN	[report] Supported files for scanner(s) not found.	scanners=[vuln]
 
 Report Summary
 
@@ -323,14 +264,9 @@ Legend:
     ○ ░
     ░    gitleaks
 
-[90m9:14AM[0m [31mERR[0m [1m[git] fatal: detected dubious ownership in repository at '/work'[0m
-[90m9:14AM[0m [31mERR[0m [1m[git] To add an exception for this directory, call:[0m
-[90m9:14AM[0m [31mERR[0m [1m[git] [0m
-[90m9:14AM[0m [31mERR[0m [1m[git] 	git config --global --add safe.directory /work[0m
-[90m9:14AM[0m [31mERR[0m [36merror=[0m[31m[1m"stderr is not empty"[0m[0m
-[90m9:14AM[0m [32mINF[0m [1m0 commits scanned.[0m
-[90m9:14AM[0m [32mINF[0m [1mscanned ~0 bytes (0) in 219ms[0m
-[90m9:14AM[0m [32mINF[0m [1mno leaks found[0m
+[90m12:10PM[0m [32mINF[0m [1m56 commits scanned.[0m
+[90m12:10PM[0m [32mINF[0m [1mscanned ~154075 bytes (154.07 KB) in 316ms[0m
+[90m12:10PM[0m [32mINF[0m [1mno leaks found[0m
 ```
 
 ---
