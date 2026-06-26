@@ -286,7 +286,7 @@ def suggest_draw_data(
     results: dict = {}
 
     random.seed(deterministic_seed)
-    fixed = _make_draw(num_counter, special_counter, game_format, power)
+    fixed = _make_draw(num_counter, special_counter, game_format, 1.0)
     if fixed:
         results["fixed"] = fixed
 
