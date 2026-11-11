@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -nE \"^\\(function|async function|const [A-Z]|//\\)\" web/public/app.js)"
+    ]
+  }
+}
