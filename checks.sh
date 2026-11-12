@@ -114,8 +114,8 @@ write_report() {
 # ─────────────────────────────────────────────────────────────────────────────
 
 section "Shell"
-step "shellcheck  web/install.sh" \
-  "${DOCKER_RUN[@]}" shellcheck web/install.sh
+step "shellcheck  install.sh" \
+  "${DOCKER_RUN[@]}" shellcheck install.sh
 
 section "JSON"
 step "jsonlint  urls.json" \
