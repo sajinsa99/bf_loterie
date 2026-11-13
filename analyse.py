@@ -445,7 +445,7 @@ def main() -> None:
                         help="freq=pondération par fréquence (défaut) ; ev=maximise l'espérance de gain en évitant les grilles sur-jouées")
     args = parser.parse_args()
 
-    if not (1 <= args.count <= 50):
+    if not 1 <= args.count <= 50:
         parser.error("--count doit être entre 1 et 50")
 
     jeux_selectionnes = list(JEUX) if args.jeu == "tous" else [args.jeu]
@@ -457,6 +457,7 @@ def main() -> None:
         result = subprocess.run(
             [sys.executable, str(Path(__file__).parent / "download.py")],
             capture_output=False,
+            check=False,
         )
         if result.returncode != 0:
             print("[!] download.py a échoué, abandon.", file=sys.stderr)

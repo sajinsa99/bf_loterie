@@ -1,0 +1,13 @@
+[FORMAT]
+max-line-length=160
+
+[MESSAGES CONTROL]
+disable=
+    missing-module-docstring,
+    missing-class-docstring,
+    missing-function-docstring,
+    too-many-locals,
+    too-many-arguments,
+    too-many-positional-arguments,
+    too-few-public-methods,
+    broad-exception-caught
