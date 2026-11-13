@@ -74,15 +74,16 @@ function runAnalyse(args, res) {
 function parseTopArg(query)  { const v = parseInt(query.top, 10);   return Number.isInteger(v) && v > 0  ? String(v) : '10'; }
 function parsePowerArg(query){ const v = parseFloat(query.power);   return Number.isFinite(v) && v > 0  ? String(v) : '1.0'; }
 function parseCountArg(query){ const v = parseInt(query.count, 10); return Number.isInteger(v) && v >= 1 && v <= 50 ? String(v) : '1'; }
+function parseStrategieArg(query){ return query.strategie === 'ev' ? 'ev' : 'freq'; }
 
 // Full analysis: top-N numbers + pairs + draws
 app.get('/api/analyse', (req, res) => {
-  runAnalyse(['--json', '--top', parseTopArg(req.query), '--power', parsePowerArg(req.query), '--count', parseCountArg(req.query)], res);
+  runAnalyse(['--json', '--top', parseTopArg(req.query), '--power', parsePowerArg(req.query), '--count', parseCountArg(req.query), '--strategie', parseStrategieArg(req.query)], res);
 });
 
 // Fast draw only — uses disk cache, skips CSV re-parse
 app.get('/api/draw', (req, res) => {
-  runAnalyse(['--json', '--draw-only', '--top', parseTopArg(req.query), '--power', parsePowerArg(req.query), '--count', parseCountArg(req.query)], res);
+  runAnalyse(['--json', '--draw-only', '--top', parseTopArg(req.query), '--power', parsePowerArg(req.query), '--count', parseCountArg(req.query), '--strategie', parseStrategieArg(req.query)], res);
 });
 
 // History

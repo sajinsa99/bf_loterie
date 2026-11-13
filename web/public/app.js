@@ -2,6 +2,7 @@
 
 const topInput = document.getElementById('top-input');
 const powerInput = document.getElementById('power-input');
+const strategieInput = document.getElementById('strategie-input');
 const btnRefresh = document.getElementById('btn-refresh');
 const btnDraw = document.getElementById('btn-draw');
 const statusEl = document.getElementById('status');
@@ -447,6 +448,10 @@ function powerValue() {
   return Number.isFinite(v) && v > 0 ? v : 1.0;
 }
 
+function strategieValue() {
+  return strategieInput && strategieInput.value === 'ev' ? 'ev' : 'freq';
+}
+
 function pad(n) {
   return String(n).padStart(2, '0');
 }
@@ -455,7 +460,7 @@ function pad(n) {
 
 function applyVisitorLock() {
   // Disable header controls
-  [btnRefresh, btnDraw, topInput, powerInput].forEach(el => { el.disabled = true; });
+  [btnRefresh, btnDraw, topInput, powerInput, strategieInput].forEach(el => { if (el) el.disabled = true; });
   // Disable "Jouer" and "+ Manuel" buttons
   document.querySelectorAll('.btn-save-jeu, .btn-add-entry, .btn-clear-jeu').forEach(el => { el.disabled = true; });
 }
@@ -865,9 +870,12 @@ function renderBall(n, cls) {
 
 function renderDraws(container, draws, gameFormat, _jeu) {
   container.innerHTML = '';
+  const randomLabel = strategieValue() === 'ev'
+    ? 'Aléatoire (espérance de gain)'
+    : 'Aléatoire (pondéré)';
   const entries = [
     { key: 'fixed', label: 'Fixe (déterministe)' },
-    { key: 'random', label: 'Aléatoire (pondéré)' },
+    { key: 'random', label: randomLabel },
   ];
 
   for (const { key, label } of entries) {
@@ -975,7 +983,7 @@ async function fetchAnalyse() {
   setLoading(true);
   setStatus('Analyse en cours…');
   try {
-    const res = await fetch(`api/analyse?top=${topValue()}&power=${powerValue()}`);
+    const res = await fetch(`api/analyse?top=${topValue()}&power=${powerValue()}&strategie=${strategieValue()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderAll(data);
@@ -991,7 +999,7 @@ async function fetchDraw() {
   setLoading(true);
   setStatus('Tirage en cours…');
   try {
-    const res = await fetch(`api/draw?top=${topValue()}&power=${powerValue()}`);
+    const res = await fetch(`api/draw?top=${topValue()}&power=${powerValue()}&strategie=${strategieValue()}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     for (const jeu of ['loto', 'euromillions']) {
@@ -1026,6 +1034,7 @@ function setupJouerButton(jeu) {
 
 btnRefresh.addEventListener('click', () => { if (isOwner) fetchAnalyse(); });
 btnDraw.addEventListener('click', () => { if (isOwner) fetchDraw(); });
+if (strategieInput) strategieInput.addEventListener('change', () => { if (isOwner) fetchDraw(); });
 setupJouerButton('loto');
 setupJouerButton('euromillions');
 

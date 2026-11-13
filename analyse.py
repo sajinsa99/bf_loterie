@@ -106,6 +106,87 @@ def weighted_sample(counter: Counter, k: int, power: float = 1.0) -> list[int]:
     return sorted(n for _, n in heap)
 
 
+def popularity_score(boules: list[int], max_ball: int) -> float:
+    """Estime à quel point une grille est *sur-jouée* par la foule.
+
+    Score élevé = combinaison populaire => en cas de gain, jackpot partagé entre
+    plus de gagnants => espérance de gain plus faible. On cherche donc à MINIMISER
+    ce score. Fondé sur les biais de jeu documentés (Henze & Riedwyl, 1998) :
+    dates d'anniversaire, suites, motifs réguliers, concentration des numéros.
+
+    N.B. : ceci n'améliore PAS la probabilité de gagner (impossible — tirages
+    indépendants) mais le gain *conditionnel* à une victoire.
+    """
+    s = sorted(boules)
+    n = len(s)
+    score = 0.0
+
+    # 1. Biais calendaire : numéros ≤ 31 (jours/mois) massivement sur-joués
+    low = sum(1 for x in s if x <= 31)
+    score += low * 1.0
+    if low == n:                       # grille 100% "anniversaire"
+        score += 3.0
+    if all(x <= 12 for x in s):        # tout en plage "mois" : très sur-joué
+        score += 2.0
+
+    # 2. Paires consécutives et suites arithmétiques (motifs de grille)
+    diffs = [b - a for a, b in zip(s, s[1:])]
+    score += sum(1 for d in diffs if d == 1) * 0.8
+    if len(set(diffs)) == 1:           # suite parfaite (5-10-15-20-25…)
+        score += 4.0
+
+    # 3. Concentration : la foule regroupe ses numéros ; une large couverture est rare
+    if (s[-1] - s[0]) < max_ball * 0.4:
+        score += 2.0
+
+    # 4. Parité uniforme (tout pair / tout impair) : perçu comme "spécial", sur-joué
+    if all(x % 2 == 0 for x in s) or all(x % 2 == 1 for x in s):
+        score += 1.5
+
+    return score
+
+
+def _pick_special_ev(special_counter: Counter, k: int) -> list[int]:
+    """Choisit le(s) numéro(s) spécial(aux) en évitant le biais calendaire :
+    tirage uniforme favorisant la moitié haute de la plage."""
+    if not special_counter:
+        return []
+    vals = sorted(special_counter)
+    hi = vals[len(vals) // 2:]          # moitié haute, moins jouée
+    pool = hi if len(hi) >= k else vals
+    return sorted(random.sample(pool, k))
+
+
+def _make_draw_ev(
+    num_counter: Counter, special_counter: Counter, game_format: str, candidates: int = 4000
+) -> dict | None:
+    """Tirage « espérance de gain » : chaque numéro reste équiprobable (probabilité
+    de gain maximale = uniforme), mais parmi `candidates` grilles aléatoires on
+    retient la *moins populaire* pour partager le jackpot avec le moins de monde."""
+    pool = sorted(num_counter) or list(range(1, 50))
+    max_ball = max(pool)
+    if len(pool) < 5:
+        return None
+
+    best: list[int] | None = None
+    best_score = float("inf")
+    for _ in range(candidates):
+        combo = random.sample(pool, 5)
+        sc = popularity_score(combo, max_ball)
+        if sc < best_score:
+            best_score, best = sc, sorted(combo)
+
+    if best is None:
+        return None
+    if game_format == "5boules+chance":
+        chance = _pick_special_ev(special_counter, 1)
+        return {"boules": best, "chance": chance[0] if chance else random.randint(1, 10)}
+    entry: dict = {"boules": best}
+    if special_counter:
+        entry["etoiles"] = _pick_special_ev(special_counter, 2)
+    return entry
+
+
 def _make_draw(num_counter: Counter, special_counter: Counter, game_format: str, power: float) -> dict | None:
     """Draw one set of numbers using current RNG state. Returns None on error."""
     try:
@@ -277,21 +358,31 @@ def suggest_draw_data(
     power: float = 1.0,
     seed: int | None = None,
     count: int = 1,
+    strategie: str = "freq",
 ) -> dict:
-    """Return structured draw suggestions (used by --json and web server)."""
+    """Return structured draw suggestions (used by --json and web server).
+
+    strategie="freq" : pondération par fréquence historique (défaut, rétro-compatible).
+    strategie="ev"   : maximise l'espérance de gain en évitant les grilles sur-jouées.
+    """
     if not num_counter:
         return {}
+
+    def _draw(pw: float) -> dict | None:
+        if strategie == "ev":
+            return _make_draw_ev(num_counter, special_counter, game_format)
+        return _make_draw(num_counter, special_counter, game_format, pw)
 
     deterministic_seed = seed if seed is not None else sum(n * c for n, c in num_counter.items())
     results: dict = {}
 
     random.seed(deterministic_seed)
-    fixed = _make_draw(num_counter, special_counter, game_format, 1.0)
+    fixed = _draw(1.0)
     if fixed:
         results["fixed"] = fixed
 
     random.seed(None)
-    randoms = [d for _ in range(count) if (d := _make_draw(num_counter, special_counter, game_format, power)) is not None]
+    randoms = [d for _ in range(count) if (d := _draw(power)) is not None]
     if randoms:
         results["random"] = randoms[0]  # backward-compatible single entry
         if count > 1:
@@ -307,12 +398,15 @@ def suggest_draw(
     power: float = 1.0,
     seed: int | None = None,
     count: int = 1,
+    strategie: str = "freq",
 ) -> None:
     if not num_counter:
         return
 
-    print(f"\n  Tirages suggérés (pondérés par fréquence historique):")
-    draws = suggest_draw_data(num_counter, special_counter, game_format, power, seed, count)
+    titre = ("espérance de gain — évite les grilles sur-jouées"
+             if strategie == "ev" else "pondérés par fréquence historique")
+    print(f"\n  Tirages suggérés ({titre}):")
+    draws = suggest_draw_data(num_counter, special_counter, game_format, power, seed, count, strategie)
 
     def fmt_draw(label: str, d: dict) -> None:
         boules = d.get("boules", [])
@@ -347,6 +441,8 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=None, help="Graine pour le tirage aléatoire (reproductibilité)")
     parser.add_argument("--jeu", choices=list(JEUX) + ["tous"], default="tous", help="Jeu à analyser (défaut: tous)")
     parser.add_argument("--count", type=int, default=1, help="Nombre de tirages aléatoires à générer (défaut: 1, max: 50)")
+    parser.add_argument("--strategie", choices=["freq", "ev"], default="freq",
+                        help="freq=pondération par fréquence (défaut) ; ev=maximise l'espérance de gain en évitant les grilles sur-jouées")
     args = parser.parse_args()
 
     if not (1 <= args.count <= 50):
@@ -378,7 +474,7 @@ def main() -> None:
             continue
 
         if json_mode:
-            draws = suggest_draw_data(data.num_counter, data.special_counter, data.game_format, args.power, args.seed, args.count)
+            draws = suggest_draw_data(data.num_counter, data.special_counter, data.game_format, args.power, args.seed, args.count, args.strategie)
             if args.draw_only:
                 output[jeu] = {"game_format": data.game_format, "draws": draws}
             else:
@@ -397,7 +493,7 @@ def main() -> None:
             print(f"  {jeu.upper()}")
             print(f"{'='*50}")
             print_jeu(data, args.top)
-            suggest_draw(data.num_counter, data.special_counter, data.game_format, args.power, args.seed, args.count)
+            suggest_draw(data.num_counter, data.special_counter, data.game_format, args.power, args.seed, args.count, args.strategie)
 
     if json_mode:
         print(json.dumps(output, ensure_ascii=False))

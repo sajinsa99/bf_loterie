@@ -24,6 +24,7 @@ python3 analyse.py --refresh            # re-download data first (runs download.
 python3 analyse.py --json               # structured JSON (top_nums/pairs/draws) — used by the web server
 python3 analyse.py --draw-only          # JSON draws only, uses disk cache (fast path)
 python3 analyse.py --power 2.0          # weighting exponent for random picks (1.0=linear)
+python3 analyse.py --strategie ev       # maximise expected payout: avoid over-played grids (default: freq)
 python3 analyse.py --count 5            # generate N random suggestions (1–50)
 python3 download.py                     # download+extract CSVs into downloads/ (called automatically when data missing)
 ```
