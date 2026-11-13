@@ -1,4 +1,4 @@
-# Checks Report — bf_loterie — 2026-11-13 16:34:09
+# Checks Report — bf_loterie — 2026-11-13 16:36:42
 
 ## Summary
 
@@ -13,14 +13,14 @@
 | htmlhint  HTML files | ✅ PASS |
 | stylelint  CSS files | ✅ PASS |
 | yamllint  (no *.yaml / *.yml files found) | ⏭ SKIP |
-| pylint  analyse.py  download.py | ❌ FAIL |
+| pylint  analyse.py  download.py | ✅ PASS |
 | bandit  analyse.py  download.py | ✅ PASS |
 | semgrep  analyse.py + download.py + JS sources | ✅ PASS |
 | checkov  (tmp/Dockerfile not found) | ⏭ SKIP |
 | trivy  HIGH/CRITICAL CVEs | ✅ PASS |
 | gitleaks  secrets in repo | ✅ PASS |
 | detect-secrets  (run: detect-secrets scan > .secrets.baseline  to create baseline) | ⏭ SKIP |
-| **Total** | PASS: 10 · FAIL: 1 · SKIP: 5 |
+| **Total** | PASS: 11 · FAIL: 0 · SKIP: 5 |
 
 ---
 
@@ -192,57 +192,12 @@ _no output_
 
 ### `pylint  analyse.py  download.py`
 
-**Status:** ❌ FAIL (exit 28)
+**Status:** ✅ PASS
 
 ```
-************* Module analyse
-analyse.py:96:0: C0301: Line too long (108/100) (line-too-long)
-analyse.py:190:0: C0301: Line too long (110/100) (line-too-long)
-analyse.py:199:0: C0301: Line too long (111/100) (line-too-long)
-analyse.py:269:0: C0301: Line too long (104/100) (line-too-long)
-analyse.py:323:0: C0301: Line too long (110/100) (line-too-long)
-analyse.py:409:0: C0301: Line too long (103/100) (line-too-long)
-analyse.py:436:0: C0301: Line too long (115/100) (line-too-long)
-analyse.py:437:0: C0301: Line too long (129/100) (line-too-long)
-analyse.py:438:0: C0301: Line too long (101/100) (line-too-long)
-analyse.py:439:0: C0301: Line too long (107/100) (line-too-long)
-analyse.py:440:0: C0301: Line too long (156/100) (line-too-long)
-analyse.py:441:0: C0301: Line too long (116/100) (line-too-long)
-analyse.py:442:0: C0301: Line too long (117/100) (line-too-long)
-analyse.py:443:0: C0301: Line too long (123/100) (line-too-long)
-analyse.py:445:0: C0301: Line too long (139/100) (line-too-long)
-analyse.py:448:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
-analyse.py:477:0: C0301: Line too long (146/100) (line-too-long)
-analyse.py:496:0: C0301: Line too long (133/100) (line-too-long)
-analyse.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-analyse.py:21:0: C0116: Missing function or method docstring (missing-function-docstring)
-analyse.py:27:0: C0116: Missing function or method docstring (missing-function-docstring)
-analyse.py:43:0: R0914: Too many local variables (17/15) (too-many-locals)
-analyse.py:81:11: W0718: Catching too general exception Exception (broad-exception-caught)
-analyse.py:215:0: C0116: Missing function or method docstring (missing-function-docstring)
-analyse.py:247:11: W0718: Catching too general exception Exception (broad-exception-caught)
-analyse.py:262:11: W0718: Catching too general exception Exception (broad-exception-caught)
-analyse.py:268:0: C0115: Missing class docstring (missing-class-docstring)
-analyse.py:271:4: R0913: Too many arguments (7/5) (too-many-arguments)
-analyse.py:271:4: R0917: Too many positional arguments (7/5) (too-many-positional-arguments)
-analyse.py:268:0: R0903: Too few public methods (0/2) (too-few-public-methods)
-analyse.py:290:0: R0914: Too many local variables (16/15) (too-many-locals)
-analyse.py:336:0: C0116: Missing function or method docstring (missing-function-docstring)
-analyse.py:354:0: R0913: Too many arguments (7/5) (too-many-arguments)
-analyse.py:354:0: R0917: Too many positional arguments (7/5) (too-many-positional-arguments)
-analyse.py:394:0: C0116: Missing function or method docstring (missing-function-docstring)
-analyse.py:394:0: R0913: Too many arguments (7/5) (too-many-arguments)
-analyse.py:394:0: R0917: Too many positional arguments (7/5) (too-many-positional-arguments)
-analyse.py:429:0: C0116: Missing function or method docstring (missing-function-docstring)
-analyse.py:434:0: C0116: Missing function or method docstring (missing-function-docstring)
-analyse.py:457:17: W1510: 'subprocess.run' used without explicitly defining the value for 'check'. (subprocess-run-check)
-************* Module download
-download.py:30:0: C0301: Line too long (138/100) (line-too-long)
-download.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-download.py:35:0: C0116: Missing function or method docstring (missing-function-docstring)
 
------------------------------------
-Your code has been rated at 8.82/10
+------------------------------------
+Your code has been rated at 10.00/10
 ```
 
 ---
@@ -289,13 +244,13 @@ AttributeError: module 'ast' has no attribute 'Num'
 
 [manager]	ERROR	Exception occurred when executing tests against ./download.py.
 [manager]	ERROR	Run "bandit --debug ./download.py" to see the full traceback.
-Run started:2026-11-13 15:33:55.914531
+Run started:2026-11-13 15:36:29.126031
 
 Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 452
+	Total lines of code: 453
 	Total lines skipped (#nosec): 0
 	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
 
@@ -372,14 +327,14 @@ See https://semgrep.dev/docs/reporting-false-negatives/
 **Status:** ✅ PASS
 
 ```
-2026-11-13T15:34:01Z	INFO	[vulndb] Need to update DB
-2026-11-13T15:34:01Z	INFO	[vulndb] Downloading vulnerability DB...
-2026-11-13T15:34:01Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
-14.99 MiB / 133.77 MiB [------>_____________________________________________________] 11.20% ? p/s ?35.68 MiB / 133.77 MiB [---------------->___________________________________________] 26.67% ? p/s ?57.70 MiB / 133.77 MiB [------------------------->__________________________________] 43.14% ? p/s ?81.66 MiB / 133.77 MiB [---------------------------->_________________] 61.05% 111.20 MiB p/s ETA 0s107.93 MiB / 133.77 MiB [------------------------------------>________] 80.68% 111.20 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 111.20 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 109.62 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 109.62 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 109.62 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 102.55 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 102.55 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 102.55 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 95.94 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 95.94 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 95.94 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 89.75 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 89.75 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 89.75 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 83.96 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 83.96 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 83.96 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 78.54 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 78.54 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 78.54 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 73.47 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 73.47 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 73.47 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 68.73 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-----------------------------------------------] 100.00% 24.52 MiB p/s 5.7s2026-11-13T15:34:07Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
-2026-11-13T15:34:07Z	INFO	[vuln] Vulnerability scanning is enabled
-2026-11-13T15:34:07Z	INFO	Suppressing dependencies for development and testing. To display them, try the '--include-dev-deps' flag.
-2026-11-13T15:34:07Z	INFO	Number of language-specific files	num=1
-2026-11-13T15:34:07Z	INFO	[npm] Detecting vulnerabilities...
+2026-11-13T15:36:34Z	INFO	[vulndb] Need to update DB
+2026-11-13T15:36:34Z	INFO	[vulndb] Downloading vulnerability DB...
+2026-11-13T15:36:34Z	INFO	[vulndb] Downloading artifact...	repo="mirror.gcr.io/aquasec/trivy-db:2"
+18.77 MiB / 133.77 MiB [-------->___________________________________________________] 14.03% ? p/s ?41.03 MiB / 133.77 MiB [------------------>_________________________________________] 30.67% ? p/s ?60.09 MiB / 133.77 MiB [-------------------------->_________________________________] 44.92% ? p/s ?81.52 MiB / 133.77 MiB [---------------------------->_________________] 60.94% 104.57 MiB p/s ETA 0s104.73 MiB / 133.77 MiB [----------------------------------->_________] 78.29% 104.57 MiB p/s ETA 0s129.81 MiB / 133.77 MiB [------------------------------------------->_] 97.04% 104.57 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 103.45 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 103.45 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [------------------------------------------->] 100.00% 103.45 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 96.77 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 96.77 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 96.77 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 90.53 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 90.53 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 90.53 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 84.69 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 84.69 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 84.69 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 79.22 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 79.22 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 79.22 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 74.11 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 74.11 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 74.11 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 69.33 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 69.33 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 69.33 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-------------------------------------------->] 100.00% 64.86 MiB p/s ETA 0s133.77 MiB / 133.77 MiB [-----------------------------------------------] 100.00% 24.22 MiB p/s 5.7s2026-11-13T15:36:40Z	INFO	[vulndb] Artifact successfully downloaded	repo="mirror.gcr.io/aquasec/trivy-db:2"
+2026-11-13T15:36:40Z	INFO	[vuln] Vulnerability scanning is enabled
+2026-11-13T15:36:40Z	INFO	Suppressing dependencies for development and testing. To display them, try the '--include-dev-deps' flag.
+2026-11-13T15:36:40Z	INFO	Number of language-specific files	num=1
+2026-11-13T15:36:40Z	INFO	[npm] Detecting vulnerabilities...
 
 Report Summary
 
@@ -409,9 +364,9 @@ Legend:
     ○ ░
     ░    gitleaks
 
-[90m3:34PM[0m [32mINF[0m [1m88 commits scanned.[0m
-[90m3:34PM[0m [32mINF[0m [1mscanned ~230055 bytes (230.05 KB) in 252ms[0m
-[90m3:34PM[0m [32mINF[0m [1mno leaks found[0m
+[90m3:36PM[0m [32mINF[0m [1m90 commits scanned.[0m
+[90m3:36PM[0m [32mINF[0m [1mscanned ~241126 bytes (241.13 KB) in 256ms[0m
+[90m3:36PM[0m [32mINF[0m [1mno leaks found[0m
 ```
 
 ---
